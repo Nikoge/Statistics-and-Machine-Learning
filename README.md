@@ -15,18 +15,18 @@
      
      * Ensemble methods and mixture models. Online Learning.
      
-     * Splines and additive models. High-dimensional problems
+     * Splines and additive models. High-dimensional problems.
  
  * ## [Advanced R programming](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20R%20Programming)
  
     The course covers  is devoted to studying the programming language R, including its standard and more advanced tools. 
     
     It covers concepts such as:
-      * Reading data from file and from the internet
+      * Reading data from file and from the internet.
       
-      * Data structures, functions and objects
+      * Data structures, functions and objects.
       
-      * Debugging and object-oriented programming
+      * Debugging and object-oriented programming.
       
       * Performance enhancement, parallel programming and many other advanced concepts.
  
@@ -34,11 +34,11 @@
 
     The course covers Python basics and more advanced concepts such as:
     
-     * Data structures
+     * Data structures.
       
-     * Functions and functional programming
+     * Functions and functional programming.
      
-     * Classes and object oriented programming
+     * Classes and object oriented programming.
      
      * Standard library and debbuging. 
     
@@ -52,7 +52,7 @@
       
      * Unsupervised Learning: patterns in high-dimensional data, dimensionality reduction, clustering, principal component analysis,             linear discriminant analysis.
       
-     * Reinforcement Learning: TD-learning, Q-learningIn
+     * Reinforcement Learning: TD-learning, Q-learningIn.
      
 * ## [Advanced Data mining](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Data%20Mining)
     
@@ -60,27 +60,27 @@
 
     This course covers the following content:
     
-     * Clustering | Partitioning Methods: K-Means; K-Medoids; PAM; CLARA; CLARANS.
+     * Clustering | Partitioning Methods: K-Means, K-Medoids, PAM, CLARA, CLARANS.
       
-     * Clustering | Hierarchical Methods: AGNES; DIANA; BIRCH; ROCK; CHAMELEON.
+     * Clustering | Hierarchical Methods: AGNES, DIANA; BIRCH, ROCK, CHAMELEON.
       
-     * Clustering | Density-Based Methods: DBSCAN; OPTICS; Denclue.
+     * Clustering | Density-Based Methods: DBSCAN, OPTICS, Denclue.
       
-     * Association Analysis: Apriori algorithm; FP-grow Algorithm; Monotone/Antimonotone Constraints
+     * Association Analysis: Apriori algorithm, FP-grow Algorithm, Monotone/Antimonotone Constraints.
      
 * ## [Computational Statistics](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Computational%20Statistics)
   
     The course includes computational applications of statistics in R and covers as main topics:
     
-     * Computer arithmetics
+     * Computer arithmetics.
       
-     * Optimization
+     * Optimization.
       
-     * Random number generation
+     * Random number generation,
       
-     * Monte Carlo methods, MCMC
+     * Monte Carlo methods, MCMC,
       
-     * Numerical model selection and hyphothesis testing
+     * Numerical model selection and hyphothesis testing,
       
      * EM algorithm and stochastic optimization (specifically genetic algorithms).
       
@@ -88,14 +88,19 @@
     
     The programming language of this course is Python and database technologies are Spark and SparkSQL. The structure of the big data       which is used in labs can be found index of the repository.This course covers the  following topics:
     
-    * Introduction to Big Data: concept and tools
+    * Introduction to Big Data: concept and tools.
     
-    * Parallel computing
-    * Databases for Big Data (NoSql, HDFS)
-    * Querying for Big Data (Spark, SparkSQL)
-    * Resource management in a cluster environment
+    * Parallel computing.
+    
+    * Databases for Big Data (NoSql, HDFS).
+    
+    * Querying for Big Data (Spark, SparkSQL).
+    
+    * Resource management in a cluster environment.
+    
     * Parallelizing computations for Big Data. MapReduce concept.
-    * Machine Learning for Big Data
+    
+    * Machine Learning for Big Data.
 
 * ## [Bayesian Learning](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Bayesian%20Learning)
 
@@ -105,20 +110,20 @@
     
      * Bayesics: Basic concepts about likelihood, priors, (one|multi)-parameter models, marginalization.
      
-     * Bayesian Regression and Classification
+     * Bayesian Regression and Classification.
      
-     * More advanced models, MCMC and Variational Bayes
+     * More advanced models, MCMC and Variational Bayes.
      
-     * Model Inference and Variable Selection
+     * Model Inference and Variable Selection.
 
 * ## [Advanced Machine Learning](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Machine%20Learning)
   
   The course covers advanced topics in machine learning, primarily from Bayesian perspective in R.The course includes laboratory works   in which students get a practical experience of data analysis. 
   A major part of the course is devoted to  Graphical models, such as
   
-   * Hidden Markov Models
+   * Hidden Markov Models.
    
-   * Bayesian networks
+   * Bayesian networks.
    
    * Markov random fields and other methods. 
 
@@ -126,19 +131,19 @@
 
   The course provides a theoretical foundation for models and methods based on the concept of probability. All the assignments are written in paper. The course comprises:
   
-  *  Probability distributions for univariate and multivariate random variables
+  *  Probability distributions for univariate and multivariate random variables.
  
-  *  Expected value, variance, moments,
+  *  Expected value, variance, moments.
 
-  * Joint distribution, conditional distribution, independence,
+  * Joint distribution, conditional distribution, independence.
 
-  * The elements of the Bayesian approach,
+  * The elements of the Bayesian approach.
 
-  * Transforms
+  * Transforms.
 
-  * Order statistics,
+  * Order statistics.
 
-  *  Multivariate normal distribution and its properties,
+  *  Multivariate normal distribution and its properties.
 
   * Types of convergence and convergence theorems.
 
@@ -147,31 +152,31 @@
   The course content gives a foundamental knowledge in Bayesian Inference and Decision Theory. The assignments are written in paper. 
   The contexts below are covered :
   
-    * The subjective interpretation of probabilities 
+    * The subjective interpretation of probabilities.
     
-    * Probabilistic reasoning and likelihood theory 
+    * Probabilistic reasoning and likelihood theory. 
     
-    * Bayesian hypothesis evaluation
+    * Bayesian hypothesis evaluation.
     
-    * Decision theoretic elements
+    * Decision theoretic elements.
     
-    * Utility and loss functions
+    * Utility and loss functions.
     
-    * Graphical modelling as a tool for decision making
+    * Graphical modelling as a tool for decision making.
     
-    * Sequential analysis
+    * Sequential analysis.
 
 * ## Statistical Methods 
 
   The course provides a theoretical basis of statistical concepts and methods that are required for qualified work and research in statistics. The course contents cover major concepts and methods from different statistical branches such as: 
   
-  * Probability theory
+  * Probability theory.
   
-  * Statistical inference
+  * Statistical inference.
   
-  * Stochastic processes
+  * Stochastic processes.
   
-  * Bayesian theory
+  * Bayesian theory.
   
   * Regression analysis and sampling.
 
