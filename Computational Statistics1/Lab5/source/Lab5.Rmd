@@ -1,0 +1,128 @@
+---
+title: "Lab5_correct"
+author: "Andreas Stasinakis"
+date: "March 14, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+#Import the lottery data and plot the data
+data = readxl::read_xls("../lottery.xls")
+df = data.frame(x = data$Day_of_year, y = data$Draft_No)
+
+ggplot(df) +
+  geom_point(mapping = aes(x = df$x,y = df$y))+
+  labs(title = "Scaterplot Draft vs Days", x= "Days", y= "Draft No")
+
+```
+
+```{r}
+set.seed(123456)
+
+y_hat = loess(formula = Draft_No~ Day_of_year,data = data)
+df1 = data.frame(x = data$Day_of_year, y = y_hat$fitted)
+
+ggplot(df1) +
+  geom_point(mapping = aes(x = df1$x,y = df1$y))+
+  labs(title = "Scaterplot Draft vs Days", x= "Days", y= "Draft No")
+```
+
+```{r}
+set.seed(123456)
+library(boot)
+T_statistic = function(df,ind){
+  x = df$Day_of_year[ind]
+  y = df$Draft_No[ind]
+  y_h = loess(formula = y~x)
+  y_hat = y_h$fitted
+  
+  index_b = which.max(y)
+  index_a = which.min(y)
+  
+  den = x[index_b]- x[index_a]
+  num = y_hat[index_b] - y_hat[index_a]
+  T = num/den
+  return(T)
+}
+
+distr_T = boot(data = data, statistic = T_statistic,R = 2000)
+center_t = distr_T$t - mean(distr_T$t)
+df_T = data.frame(center_t)
+
+
+ggplot(df_T) + 
+  geom_histogram(mapping = aes(x = df_T$center_t,
+                               y = ..density..), color = "red",
+                 bins = 30, fill = "red")+
+  geom_vline(xintercept = distr_T$t0)+
+  labs(title = "Distribution of T statistic", x = "Days", y = "density")
+
+#p values
+
+p_value = mean(center_t< distr_T$t0)
+```
+
+We do not have the distribution of the data so we will generate bootstrap samples. After that we want to estimate the p value. Remember that we center the data because, we calculate the p values given that Ho is true. So we have as Ho = 0 and we have to center that.
+
+```{r}
+set.seed(123456)
+permutation= function(df,B){
+  x = df$Day_of_year
+  y = df$Draft_No
+  n = length(y)
+  stat = numeric(B)
+  for (i in 1:B) {
+    
+    y_prime = sample(y,n)
+    y_h = loess(formula = y_prime~x)
+    y_hat = y_h$fitted
+  
+    index_b = which.max(y_prime)
+    index_a = which.min(y_prime)
+  
+    den = x[index_b]- x[index_a]
+    num = y_hat[index_b] - y_hat[index_a]
+    T = num/den
+    stat[i] = T
+    }
+    
+  return(stat)
+  
+}
+
+a = permutation(data,2000)
+prime_a = a
+prime_t = distr_T$t0 - mean(a)
+
+p_value = mean(abs(prime_a)>= abs(prime_t))
+```
+
+```{r}
+set.seed(123456)
+n = 366
+data1 = data
+x = data1$Day_of_year
+
+all_alpha = seq(0.1,10,by = 0.1)
+all_p_values = c()
+for (i in all_alpha) {
+  b = rnorm(n,mean = 183,sd = 10)
+  data1$Draft_No = pmax(0, pmin(i*x + b,366))
+  temp_per = permutation(data1,200)
+  prime_per = temp_per - mean(temp_per)
+  prime_t = T_statistic(data1,ind = 1:n) 
+  temp_p = mean(abs(prime_per)> abs(prime_t))
+  all_p_values = c(all_p_values,temp_p)
+}
+
+
+
+
+
+
+```

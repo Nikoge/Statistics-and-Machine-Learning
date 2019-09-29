@@ -1,0 +1,435 @@
+---
+title: "Lab5"
+author: "Andreas Stasinakis & Mim Kemal Tekin"
+date: "February 18, 2019"
+output: 
+  pdf_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#Question 1, Hypothesis testing
+
+*In 1970, the US Congress instituted a random selection process for the military draft. All 366 possible birth dates were placed in plastic capsules in a rotating drum and were selected one by one. The first date drawn from the drum received draft number one, the second date drawn received draft number two, etc. Then, eligible men were drafted in the order given by the draft number of their birth date. In a truly random lottery there should be no relationship between the date and the draft number. Your task is to investigate whether or not the draft numbers were randomly selected. The draft numbers (Y=Draft No) sorted by day of year (X=Day of year) are given in the file lottery.xls.*
+
+##1.1 Import the data
+
+*Make a scatterplot of Y versus X and conclude whether the lottery looks random.*
+
+```{r}
+library(ggplot2)
+#Import the lottery data and plot the data
+data = readxl::read_xls("../lottery.xls")
+
+df = data.frame(x = data$Day_of_year, y = data$Draft_No)
+ggplot(df) +
+  geom_point(mapping = aes(x = df$x,y = df$y))+
+  labs(title = "Scaterplot Draft vs Days", x= "Days", y= "Draft No")
+
+```
+
+Fron the scaterplot above, we can say that the data seems random. We can not find any pattern in order to conclude that it is not random. Moreover, the data is not homogenous distributed while in many areas the density is higher than in others.
+
+##1.2 Compute estimate of $\hat{Y}$
+
+*Compute an estimate $\hat{Y}$ of the expected response as a function of X by using a loess smoother (use loess()), put the curve $\hat{Y}$ versus X in the previous graph and state again whether the lottery looks random.*
+
+```{r}
+set.seed(123456)
+y_hat = loess(formula = Draft_No~ Day_of_year,data = data)
+
+df1 = data.frame(x = data$Day_of_year, y = y_hat$fitted)
+ggplot(df1) +
+  geom_point(mapping = aes(x = df1$x,y = df1$y))+
+  labs(title = "Scaterplot Draft vs Days", x= "Days", y= "Draft No")
+```
+
+After estimating the $Y$ values fiting a $\text{LOESS}$ model, we can conclude that the values are not random anymore. There is a clear trend. Thous, while the variable $X$ is increasing, the predicted values are decresing exponential. 
+
+
+##1.3 Use a test statistic to check if it's random, estimate the distribution of T values implementing non param bootstrap, comment to p values.
+
+*To check whether the lottery is random, it is reasonable to use test statistics:*
+
+$$T = \frac{\hat{Y}(X_b)-\hat{Y}(X_a)}{X_b-X_a}$, where $X_b = argmax_xY(X), X_a = argmin_xY(X)$$
+
+*If this value is significantly greater than zero, then there should be a trend in the data and the lottery is not random. Estimate the distribution of* $T$ *by using a non -parametric bootstrap with* $B = 2000$ *and comment whether the lottery is random or not. What is the p-value of the test?*
+
+```{r}
+set.seed(123456)
+
+
+# Function calculating the T value
+T_statistic = function(dt,ind){
+  x = dt$Day_of_year[ind]
+  y = dt$Draft_No[ind]
+  y_h = loess(formula = y~x)
+  y_hat = y_h$fitted
+  # arquments for maximum and minimum draft for real values
+  X_b = which.max(y)
+  X_a = which.min(y)
+  
+  #formula for the t test
+  test = (y_hat[X_b] - y_hat[X_a])/(x[X_b] - x[X_a])
+  return(test)
+  
+} 
+
+t_value = T_statistic(data)
+```
+
+```{r}
+set.seed(123456)
+library(boot)
+
+########## Bootstrap from scratch 
+# #Function to generate one sample 
+# one_sample = function(data,B){
+#   
+#   #length of the data we want to generate
+#   n = nrow(data)
+#   
+#   # for loop for the number of samples we want, WITH replacement
+#   boo_sample= data[sample(x = data$Day_of_year,size = n,replace = TRUE),] 
+#     
+#   return(boo_sample)
+# }
+# 
+# dt = data.frame(Day_of_year= data$Day_of_year,Draft_No = data$Draft_No)
+# my_bootstrap = function(df,B){
+#   
+#   T_dist = c()
+#   for (i in 1:B) {
+#     boot_sample = one_sample(df,B)
+#     T_dist[i] = T_statistic(dt = boot_sample)
+#     
+#   }
+#   
+#   return(T_dist)
+#   
+# }
+##########################################################
+
+# all the t values generated to create an estimation for the distribution
+all_t_values = boot(data,statistic = T_statistic, R=2000)
+
+#center the data in order to plot them and take H0 
+# probably we do not need to do it 
+#plot_data=scale(all_t_values, scale = F)
+
+
+#Histogramm of Prices
+ggplot(as.data.frame(plot_data)) +
+  geom_histogram(mapping = aes(plot_data,y = ..density..), color = "blue", fill = "light blue", bins = 30)+
+  geom_density(mapping = aes(plot_data), color = "black", size =1)+
+  geom_vline(xintercept = t_value,show.legend = T,size = 1)+
+  labs(title = "Histogramm of t-values", x = "T-values")
+
+# p value is proportional
+#so i need all the t values less than the t value of the populaton
+#p_value = length(which(plot_data< t_value))/length(plot_data)
+p_value = mean(all_t_values$t>0)
+
+```
+
+
+##1.4 Function for permutation testing
+
+*Implement a function depending on data and B that tests the hypothesis:*
+
+*$H_0$: Lottery is random*
+
+*versus*
+
+*$H_1$: Lottery is non-random*
+
+*by using a permutation test with statistics T. The function is to return the p-value of this test. Test this function on our data with B = 2000.*
+
+```{r}
+#function which use permutation test for hypotesis testing 
+# create as many samples as the lenght of Y variable WITHOUT replacement
+# permutation = function(data,B){
+#   x = dt$Day_of_year
+#   y = dt$Draft_No
+#   n = length(y)
+#   test = c()
+#   for(i in 1:B){
+#     ind = sample(1:366,n)
+#     y_sample = y[ind]
+#     
+#     y_h = loess(formula = y_sample~x)
+#     y_hat = y_h$fitted
+#     
+#     # arquments for maximum and minimum draft for real values
+#     X_b = which.max(y_sample)
+#     X_a = which.min(y_sample)
+#   
+#     #formula for the t test
+#     test[i] = (y_hat[X_b] - y_hat[X_a])/(x[X_b] - x[X_a])
+#     
+#   }
+#   
+#   test=scale(test, scale = F)
+#   #p values for all the samples
+#   
+#   p_value = length(which(test< t_value))/length(test)
+#   
+#   return(p_value)
+# }
+
+#Set seed
+set.seed(123456)
+
+#Function for permutation-test
+permutation=function(data, B){
+  y=data$Draft_No
+  x=data$Day_of_year
+  n=length(y)
+  stat=numeric(B)
+  for (i in 1:B){
+    G_b=sample(y, n)
+    y_hat=loess(G_b~x)$fitted
+    stat[i]=(y_hat[which.max(G_b)]-y_hat[which.min(G_b)])/(x[which.max(G_b)]-x[which.min(G_b)])
+  }
+  
+  #Get the t_value for the original data
+  t_value=statistic(data)
+  
+  #Get the p-value for two sided
+  step1=stat-mean(stat)
+  step2=t_value-mean(stat)
+  p_value=mean(abs(step1)>abs(step2))
+  
+  #Return the p-value
+  return(p_value)
+}
+
+
+my_p_value = permutation(data[,c(4,5)],2000)
+
+
+```
+
+## 1.5 Estimation of the power of the test
+
+*Make a crude estimate of the power of the test constructed in Step 4:*
+
+*(a) Generate (an obviously non-random) dataset with n = 366 observations by using same X as in the original data set and $Y(x) = max(0,min(\alpha x+\beta,366))$ where $\alpha = 0.1$ and  $\beta$ distributed normally with N(183, sd = 10).*
+
+*(b) Plug these data into the permutation test with B = 200 and note whether it was rejected.*
+
+*(c) Repeat Steps 5a-5b for $\alpha$ = 0.2, 0.3,..., 10.*
+
+*What can you say about the quality of your test statistics considering the value of the power?*
+
+```{r}
+set.seed(123456)
+# function to generate the non random sample from the dataset
+# Y_x = function(x,a,b){
+#    y = pmax(0,pmin(a*x+b,366))
+#    return(y)
+# }
+
+newdata = data.frame(Day_of_year=data$Day_of_year)
+#x = newdata$Day_of_year
+p = c()
+
+for (all_alpha in seq(from = 0.1,to = 10,by = 0.1)) {
+
+  #newdata$Draft_No = Y_x(x,all_alpha,rnorm(1,183,10))
+  newdata$Draft_No = pmax(0,pmin(all_alpha*newdata$Day_of_year + rnorm(1,183,10),nrow(newdata)))
+  p = c(p,permutation(newdata,200))
+  
+  
+}
+power=sum(p<0.05)/length(p)
+```
+
+
+
+
+
+
+
+
+
+# Question 2: Bootstrap, jackknife and confidence intervals
+
+*The data you are going to continue analyzing is the database of home prices in Albuquerque, 1993. The variables present are Price; SqFt: the area of a house; FEATS: number of features such as dishwasher, refrigerator and so on; Taxes: annual taxes paid for the house. Explore the file prices1.xls.*
+
+## 2.1 Histogramm of Price, discussion about the distribution of the data
+
+*Import Excel data, plot the histogram of Price. Does it remind any conventional distribution? Compute the mean price*
+
+```{r}
+library(ggplot2)
+library(MASS)
+set.seed(12345)
+#import excel data
+data = readxl::read_excel("../prices1.xls")
+
+#Histogramm of Prices
+ggplot(data) +
+  geom_histogram(mapping = aes(data$Price,y = ..density..), color = "black", fill = "red", bins = 30)+
+  geom_density(mapping = aes(data$Price), color = "black", size =1)+
+  labs(title = "Histogramm of Prices", x = "Prices")
+
+mean(data$Price)
+
+
+```
+
+We can comment on the distribution of the value $Y = \text{Price}$ from the data. First of all the distribution is right -tailed so right skewed.  It seems like the variable $Y$ follows $\text{Gamma}$ or maybe a $\text{Log normal}$ distribution. Of course we can not be sure 100% only by looking at the histogramm so we can make same Hypothesis testings or plot the probability plots and have a better picture.  
+
+## 2.2 Bootstrap bias-correction,variance, CI and first-order.
+
+*Estimate the distribution of the mean price of the house using bootstrap. Determine the bootstrap bias-correction and the variance of the mean price. Compute a 95% confidence interval for the mean price using bootstrap percentile, bootstrap BCa, and first-order normal approximation (Hint: use boot(),boot.ci(),plot.boot(),print.bootci())*
+
+```{r}
+library(boot)
+set.seed(12345)
+
+# we need to create the statistic
+# Statistic should take two inputs
+# Data and index
+my_mean = function(dt,ind){
+
+  # returns the mean of each data set generated by bootstrap
+  return(mean(dt[ind]))
+  
+}
+
+# use boot function to generate 1000 samples
+my_boot = boot(data = data$Price, statistic = my_mean,R = 10000)
+
+ggplot() + 
+  geom_histogram(mapping = aes(my_boot$t, ..density..),
+                 bins = 30, color = "black", fill = "red")+
+  geom_density(mapping = aes(my_boot$t, ..density..), color = "black", size =1)
+  
+#Plot the quatile -quantile of Standar normals
+
+ggplot(as.data.frame(my_boot$t), aes(sample=my_boot$t))+stat_qq()
+
+# bias correction estimator
+bias_cor = 2*mean(data$Price) - mean(my_boot$t)
+
+#variance of estimator
+
+var_est = sum((my_boot$t-mean(data$Price))^2)/(nrow(my_boot$t)-1)
+
+#95% CI 
+# first order normal approximation, percentile interval,
+# adjusted bootstrap percentile (BCa) interval
+all_int = boot.ci(my_boot,type = c("norm","perc", "bca"))
+all_int
+```
+
+In this task we want to estimate the distribution of the mean price of the houses using bootstrap( boot function). The boot function takes as an input the data, a statistic and the number of samples we want. The statistic is the function mean in this case. This function need two arquements as an input. Boot firstly generates all the samples and after that uses that function for each sample. That is the reason why we have also the variable "ind"" in  the function. We can see the histogramm of the estimated distribution and the quantiles for the normal distribution. In general we know from the $\text{Central limit theorem}$ that in many cases, when we sum many independent random variables, this sum will follow a Normal distribution *EVEN* if the original variables are not distributed normally. So in this case, despite the fact that the random variable $Y$ is *NOT* normaly distributed, the mean of those values is. From those two plots we can also  confirm the assumption that the distribution of the mean price of the houses is Normal. The histogramm it is clear a Normal distribution with mean = `r mean(my_boot$t)`, really close to the mean of the $Y$ distribution.  From the quantile-quantile plot, if the data are normally distributed, most of the points should be on the line which bisect the two axis. This is also happening for this data, and it is one more proof that the mean of the Prices follows normal distribution. 
+
+We also calculate the bias correction estimator and the variance of our estimator.
+
+The bias correction estimator is given by the formula $$T = 2T(D)- \frac{1}{B}\sum_{1}^{B}T_i^*$$,
+
+where T() is the statistic function( in this case the mean). In this case the value of bias correction estimator is `r bias_cor`.
+
+??he variance of our estimator( the mean of the variable Price) using the formula : 
+
+$$\frac{1}{B-1}\sum_{i=1}^{B}\Big(T(D_i^*) -\overline{T(D^*)}\Big)^2$$, where $B$ is the number of bootstrap samples, $T(D_i^*)$ the statistic(mean) for each sample and $\overline{T(D^*})$ is the mean of all the values after using the statistic for each sample. In this case the variance is equal to `r var_est `. We can also calculate is from the boot function. It is the standard error of all samples with value same as using the formula.
+
+Finally, we compute and print 3 95% CI for the mean price using bootstrap percentile, bootstrap BCa and first order normal approximation. 
+
+## 2.3 
+
+*Estimate the variance of the mean price using the jackknife and compare it with the bootstrap estimate*
+
+```{r}
+# function for generating jackknife samples
+# input is the data we want to generate from
+Jackknife = function(data){
+  
+  n = length(data)
+  
+  #matrix to store all samples
+  samples = matrix(0,ncol = n-1, n)
+  
+  for (i in 1:n) {
+    samples[i,] = data[-i] 
+    
+  }
+  
+  return(samples)
+}
+
+# generate the sample
+jack_sample = Jackknife(data$Price)
+
+# function using the statistic for each sample
+# input: all the samples generated and a statistic function
+Stat_jack = function(smp, statistic){
+  
+  # using apply function for calculate the statistic of each row(sample)
+  
+  results = apply(smp, 1,FUN = statistic)
+  return(results)
+}
+
+# use the function to the sample and we have the distribution of the mean
+
+means_jack = Stat_jack(jack_sample,mean)
+
+
+# plot the distribution of the samples
+ggplot() + 
+  geom_histogram(mapping = aes(means_jack, ..density..),
+                 bins = 30, color = "black", fill = "red")+
+  geom_density(mapping = aes(means_jack, ..density..), color = "black", size =1)
+
+
+
+# function compute the variance estimator for Jackknife sample
+n = length(means_jack)
+
+a = (n-1)*means_jack
+b = n*mean(data$Price)
+T_i = b - a
+
+J_t = mean(T_i)
+
+#Final variance estimator
+Jack_var = (sum((T_i-J_t)^2))/(n*(n-1))
+```
+
+In this task we have to estimate the variance of the mean price using the $\text{Jackknife}$ algorithm. A short description of the algorithm is presented. We generate $n$ samples as the number of observations we have( 110 here). The $i-th$ sample is the hole data except for the $i$ observation. For example the 5th sample is the data except for the $X_5$. After we have the samples, we use the statistic( in this case the mean)  and with this way we estimate the distribution of the mean  price. Finally, in order to calculate the variance estimator we use the formula below: 
+
+$$\hat{Var[T()]} = \frac{1}{n(n-1)}\sum_{i=1}^{n}\Big(T_i^* - J(T)\Big)^2$$, where $T_i^* = nT(D) -(n-1)T(D_i^*)$, $J(T)=\frac{1}{n}\sum_{i=1}^{n}T_i^*$ and $n=110$.
+
+The value we obtain using the Jackknife algorithm is `r Jack_var` , while for the bootstrap we have `r var_est `. The two algorthms do not have many differences. Bootstrap generates samples with replacement, in contrast to Jackknife which leaves one observation out in each iteration(much less computational heavy). Therefore, Jackknife we always have almost the same sample and the number of this samples is the same as the observations. Therefore the variance estimation is always the same. On the contrary, we can use bootstrap algorithm in order to generate as many samples as we want, and every time we may have different samples. Moreover, we can observe that the variance estimation using Jackkife is higher than the bootstrap method. This is happening because Jackknife is a more convervative method than Bootstrap as a result it is overestimates the variance.
+
+## 2.4 Compare the CI from bootstrap
+
+*Compare the confidence intervals obtained with respect to their length and the location of the estimated mean in these intervals.*
+
+We can see the results for each confidence interval in the table below:
+
+```{r}
+Normal = c(1010,1151,141)
+percentile = c(1012,1154,142)
+BCa = c(1016,1160,144)
+int = rbind(Normal,percentile,BCa)
+
+colnames(int) = c("From","To  ","Range"  )
+
+knitr::kable(x = int, caption = "Compare different confidence intervals")
+
+```
+
+In general it can be said that Normal and the percentile interval are first- order accurate while BCa interval are second-order accurate. In this case the intervals above are really similar. Normal starts from 1010, percentile from 1012 and BCa from 1016. All of them end between 1151-1160. Their ranges are almost the same. Of course, as we expected the mean value of the estimator lies inside all the intervals. The most important conclusion from those 3 intervals is that both of them are really close to each other. That means that the distribution of the estimator is probably symmetric which is one more confirmation that follows the Normal distribution. 
+
+
+
+
