@@ -1,0 +1,72 @@
+"0","devtools::install_github(""sburanga/Adv_Progr_5"")
+"
+"2","Downloading GitHub repo sburanga/Adv_Progr_5@master
+from URL https://api.github.com/repos/sburanga/Adv_Progr_5/zipball/master
+"
+"2","Installing MyShiny
+"
+"2","""C:/PROGRA~1/R/R-35~1.1/bin/x64/R"" --no-site-file --no-environ --no-save --no-restore --quiet CMD INSTALL  \
+  ""C:/Users/andre/AppData/Local/Temp/RtmpOybSNa/devtools31cc4e516059/Sburanga-Adv_Progr_5-3ea9740""  \
+  --library=""C:/Users/andre/Documents/R/win-library/3.5"" --install-tests 
+"
+"2","
+"
+"1","* installing *source* package 'MyShiny' ...
+"
+"1","** R
+"
+"1","** tests
+"
+"1","** byte-compile and prepare package for lazy loading
+"
+"1","Warning: replacing previous import 'ggplot2::last_plot' by 'plotly::last_plot' when loading 'MyShiny'
+"
+"1","Warning: replacing previous import 'jsonlite::validate' by 'shiny::validate' when loading 'MyShiny'
+"
+"1","** help
+"
+"1","*** installing help indices
+"
+"1","  converting help for package 'MyShiny'
+"
+"1","    finding HTML links ... done
+"
+"1","    My_shiny-class                          html  
+"
+"1","    Worldwide_Pollution-class               html  
+"
+"1","** building package indices
+"
+"1","** installing vignettes
+"
+"1","** testing if installed package can be loaded
+"
+"1","*** arch - i386
+"
+"1","Warning: replacing previous import 'ggplot2::last_plot' by 'plotly::last_plot' when loading 'MyShiny'
+"
+"1","Warning: replacing previous import 'jsonlite::validate' by 'shiny::validate' when loading 'MyShiny'
+"
+"1","*** arch - x64
+"
+"1","Warning: replacing previous import 'ggplot2::last_plot' by 'plotly::last_plot' when loading 'MyShiny'
+"
+"1","Warning: replacing previous import 'jsonlite::validate' by 'shiny::validate' when loading 'MyShiny'
+"
+"1","* DONE (MyShiny)
+"
+"1","In R CMD INSTALL
+"
+"2","Reloading installed MyShiny
+"
+"2","replacing previous import ‘ggplot2::last_plot’ by ‘plotly::last_plot’ when loading ‘MyShiny’"
+"2","replacing previous import ‘jsonlite::validate’ by ‘shiny::validate’ when loading ‘MyShiny’"
+"2","
+Attaching package: ‘MyShiny’
+
+"
+"2","The following objects are masked _by_ ‘.GlobalEnv’:
+
+    My_shiny, Worldwide_Pollution
+
+"

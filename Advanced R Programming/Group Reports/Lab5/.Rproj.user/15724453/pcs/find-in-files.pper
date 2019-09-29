@@ -1,0 +1,10 @@
+{
+    "dialog-state" : {
+        "caseSensitive" : false,
+        "filePatterns" : [
+        ],
+        "path" : "D:/download-D/Statistics and Machine Learning/Advanced R programming/Adv_Progr_5",
+        "query" : "country_list",
+        "regex" : false
+    }
+}
