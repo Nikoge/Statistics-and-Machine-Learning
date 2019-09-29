@@ -1,0 +1,120 @@
+---
+title: "Lab2"
+author: "Andreas Stasinakis & Jesper Lindberg"
+date: "March 1, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+Contributors: Jesper Lindberg(jesli060) & Andreas Stasinakis(andst745)
+
+
+In this lab we perform association analysis using Apriori algorithm in the Iris dataset. The first thing we have to do here is to discreatize our continuous attributes using the discretize filter from weka. We discretize all the continuous attributes and we use 3 bins which is the number of states of the discretized attributes. We also try different values of the parameter bins in the next tasks, but our first choice is 3. In this way  now, we have discrete variables we need in order to continue the procedure.
+
+The second step, after discreatize our data, is to create one more attribute which represents the  cluster label assigned to each instance. The optimal number of cluster labels is 3( the recommended one). We will also execute  this procedure for $k = 3,4,5$ and we present the results below. 
+
+For now, we split our data in 3 bins, we use k means with 3 clusters and we produce associations rules. 
+
+The k means, as discussed in previous labs, did a really decent job while only 9 observations misclassified as can be seen in the figure below. We also plot how the observations are splited, using 3 clusters, and it is really make sense to choose 3 cluster because the observations are divided almost equally.
+
+\begin{center}
+    \includegraphics[width=250px]{img/k-means3.png}
+\end{center}
+
+\begin{center}
+    \includegraphics[width=250px]{img/cluster_3.png}
+\end{center}
+
+One key parameter for this procedure is the number of rules we want the algorithm to search for. We run it for many different values. Our goal is to find association rules for *ALL* the clusters( in this case 3). For example when we run the algorithm for the default value 10, the obtained association rules occur only for the cluster 1 and 3. In order to find associations rule for all the clusters, we have to choose 23 in the parameter NumRules. In that case we obtain the results below:
+
+
+\begin{center}
+    \includegraphics[width=500px]{img/3bins3clusters.png}
+\end{center}
+
+For itemsets of length 1: Both cluster 1 and 3 characterized mostly by the Petal length and there is no candidate for cluster 2. 
+
+For itemsets with length more than 1, it seems that for cluster 1 and 3 sepal length and petal length occur in the rules with the highest support value and confidence. For cluster 3 this rule has 47 support value and 100% confidence and for cluster 1, 39 support value and also 100% confidence. For the second cluster, only two association rule occurs which are  sepal width and petal length( support = 28 and 100% confidence) and sepal width, petal length and petal width(support = 26 and 100% confidence). 
+
+Now we will repeat the same procedure but we will change some parameters in order to find the optimal values for them.
+
+As mentioned before we have to discretize our continuous variables before starting the procedure. It is very important to choose a efficient number of bins, which is the number of intervals that we want to split our data. In this initial procedure we use only 3 bins. We now use different number of bins in order to compare the results and comment the optimal one. So we run the algorithm again, using number of bins equal to 3,5,10. We present all the results obtained, below:
+
+For 5 bins and 20 rules:
+
+\begin{center}
+    \includegraphics[width=500px]{img/ass_anal_bins5.png}
+\end{center}
+
+For 10 bins and 20 rules:
+
+\begin{center}
+    \includegraphics[width=500px]{img/ass_anal_bins10.png}
+\end{center}
+
+First of all it is obvious that cluster 2 is the cluster which is captured really difficult. In all different parameters, we can find many rules for cluster 1 and 3 but not for 2. More specific, as easily can be seen from the figure above, for 10 bins we do not obtain any association rule for cluster 2. Despite the fact, we asked for 20 rules, the algorithm could only find 5. So we need smaller intervals in order to capture all the clusters. Also if we split the data only into 5 intervals we have the picture below, from which we can conclude that the misclassification rate increases while the number of bins increases. For that reason we will continue with 3 bins.
+
+
+\begin{center}
+    \includegraphics[width=500px]{img/misc_bins5.png}
+\end{center}
+
+As mentioned before, we will run the procedure for different number of clusters. We plot the histograms of the observations, after using the k means algorithm in order to classify the observations.  
+
+For 4 clusters:
+
+\begin{center}
+    \includegraphics[width=250px]{img/cluster_4.png}
+\end{center}
+
+For 5 clusters:
+
+\begin{center}
+    \includegraphics[width=250px]{img/clust_5.png}
+\end{center}
+
+It seems that when we use $k=4$ or $k=5$, there is one cluster with only 4 observations. This is reasonable because we only have 3 classes of flowers, but when we use a different $k$, the $\text{K- means}$ algorithm tries to "split" the observations in $k$ clusters. Of course we have to also run the appriori algorithm in order to be sure that 3  is the optimal number for clusters. So we will run the procedure for 5 clusters and 3 bins and we will compare it the initial one(3 clusters and 3 bins).
+
+First of all, we should expect that the misclassification rate will rise because we have 3 real classes but we are trying to classify our data using 5 means algorithm. The figure below confirms this statement.
+
+
+\begin{center}
+    \includegraphics[width=500px]{img/5clusters3bins.png}
+\end{center}
+
+For the appriori algorithm, we could only obtain 31 associations rules despite the fact that we add as number of rules 1000. From the plot it is clear that there is no rule for the cluster 3 and 4. If we want rules for all clusters, we should probably change the minimum support parameter we use.
+
+\begin{center}
+    \includegraphics[width=500px]{img/clust5_bins3.png}
+\end{center}
+
+For the cluster 1 we have the same rule as with 3 clusters, sepal length and petal length with support 39 and confidence 100%. For cluster 2, 5 the highest support is for the rule sepal width, petal length with support 28 and 36 and confidence 100%.
+
+From the results above it is obvious that we should choose 3 clusters. Therefore, in the end we should choose 3 clusters and 3 bins in order to find association rules for all clusters. We now choose the "best" rule for each cluster. Our choice depends on the maximum confidence and maximum support. So for the first cluster we have the rule:
+
+For the first cluster:
+
+\begin{center}
+    \includegraphics[width=500px]{img/Best1.png}
+\end{center}
+
+For the second cluster:
+
+\begin{center}
+    \includegraphics[width=500px]{img/Best2.png}
+\end{center}
+
+For the third cluster:
+
+\begin{center}
+    \includegraphics[width=500px]{img/Best3.png}
+\end{center}
+
+
+
+
