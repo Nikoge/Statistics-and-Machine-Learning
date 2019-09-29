@@ -1,0 +1,4 @@
+Row(year=1972, month=5, avg_monthly=10.372332506203472)
+Row(year=1972, month=4, avg_monthly=4.77474358974359)
+Row(year=1972, month=3, avg_monthly=0.8547146401985112)
+Row(year=1972, month=2, avg_monthly=-1.01551724137931)

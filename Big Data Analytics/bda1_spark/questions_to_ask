@@ -1,0 +1,6 @@
+* 2
+  * on 2nd, is it the most efficient way to count elements? maping as pair and reducing?
+
+* 3
+
+  * is there another efficient way to do this operations without groupby

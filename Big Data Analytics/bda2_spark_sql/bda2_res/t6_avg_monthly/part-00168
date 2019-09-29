@@ -1,0 +1,4 @@
+Row(year=1960, month=4, avg_monthly=3.9686666666666666)
+Row(year=1960, month=3, avg_monthly=-0.6225806451612904)
+Row(year=1960, month=2, avg_monthly=-5.296551724137931)
+Row(year=1960, month=1, avg_monthly=-4.073870967741935)

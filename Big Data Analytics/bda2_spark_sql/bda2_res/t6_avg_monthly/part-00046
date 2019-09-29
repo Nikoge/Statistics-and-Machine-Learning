@@ -1,0 +1,4 @@
+Row(year=1999, month=12, avg_monthly=-1.5502481389578164)
+Row(year=1999, month=11, avg_monthly=3.9807692307692313)
+Row(year=1999, month=10, avg_monthly=7.244789081885855)
+Row(year=1999, month=9, avg_monthly=14.625128205128206)

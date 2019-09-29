@@ -1,0 +1,4 @@
+Row(year=1961, month=5, count=18010)
+Row(year=1987, month=5, count=17996)
+Row(year=1955, month=6, count=17869)
+Row(year=1989, month=10, count=17690)

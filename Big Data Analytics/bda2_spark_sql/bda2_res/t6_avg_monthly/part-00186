@@ -1,0 +1,4 @@
+Row(year=1954, month=6, avg_monthly=14.403666666666668)
+Row(year=1954, month=5, avg_monthly=11.198387096774194)
+Row(year=1954, month=4, avg_monthly=3.273333333333334)
+Row(year=1954, month=3, avg_monthly=-0.19675324675324674)

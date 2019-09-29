@@ -1,0 +1,4 @@
+Row(year=1976, month=11, avg_monthly=3.0557692307692315)
+Row(year=1976, month=10, avg_monthly=6.237965260545905)
+Row(year=1976, month=9, avg_monthly=10.299230769230771)
+Row(year=1976, month=8, avg_monthly=17.26786600496278)

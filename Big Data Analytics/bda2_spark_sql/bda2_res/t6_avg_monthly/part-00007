@@ -1,0 +1,4 @@
+Row(year=2012, month=8, avg_monthly=15.313489736070382)
+Row(year=2012, month=7, avg_monthly=16.273900293255135)
+Row(year=2012, month=6, avg_monthly=12.591358024691354)
+Row(year=2012, month=5, avg_monthly=10.980351906158358)

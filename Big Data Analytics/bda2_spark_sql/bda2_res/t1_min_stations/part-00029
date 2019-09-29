@@ -1,0 +1,5 @@
+Row(year=1950, min_temp=-42.0)
+Row(year=1951, min_temp=-42.0)
+Row(year=1968, min_temp=-42.0)
+Row(year=1962, min_temp=-42.0)
+Row(year=2011, min_temp=-42.0)

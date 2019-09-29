@@ -1,0 +1,3 @@
+Row(year=1997, month=6, count=105499)
+Row(year=1999, month=6, count=104100)
+Row(year=2010, month=6, count=103905)

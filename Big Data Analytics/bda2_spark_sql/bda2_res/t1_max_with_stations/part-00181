@@ -1,0 +1,2 @@
+Row(year=1977, station=u'115050', max_temp=12.6)
+Row(year=1995, station=u'74300', max_temp=12.6)

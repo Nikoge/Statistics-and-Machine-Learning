@@ -1,0 +1,4 @@
+Row(year=1986, month=4, avg_monthly=2.702272727272727)
+Row(year=1986, month=3, avg_monthly=0.8198795180722891)
+Row(year=1986, month=2, avg_monthly=-8.60146103896104)
+Row(year=1986, month=1, avg_monthly=-4.750149700598803)

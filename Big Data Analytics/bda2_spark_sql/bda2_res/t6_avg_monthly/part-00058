@@ -1,0 +1,4 @@
+Row(year=1996, month=1, avg_monthly=-3.843978494623656)
+Row(year=1995, month=12, avg_monthly=-4.970803782505909)
+Row(year=1995, month=11, avg_monthly=-0.09388888888888888)
+Row(year=1995, month=10, avg_monthly=9.380510752688172)

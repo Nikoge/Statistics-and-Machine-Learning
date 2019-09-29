@@ -1,0 +1,4 @@
+Row(year=1950, month=11, avg_monthly=1.8391666666666666)
+Row(year=1950, month=10, avg_monthly=6.744354838709678)
+Row(year=1950, month=9, avg_monthly=12.151666666666667)
+Row(year=1950, month=8, avg_monthly=16.327419354838707)

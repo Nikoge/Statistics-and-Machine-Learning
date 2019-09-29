@@ -1,0 +1,4 @@
+Row(year=1970, month=5, avg_monthly=10.398138957816377)
+Row(year=1970, month=4, avg_monthly=2.511538461538462)
+Row(year=1970, month=3, avg_monthly=-1.5214640198511167)
+Row(year=1970, month=2, avg_monthly=-10.683653846153845)

@@ -1,0 +1,4 @@
+Row(year=1991, month=11, avg_monthly=3.3265384615384614)
+Row(year=1991, month=10, avg_monthly=7.016129032258063)
+Row(year=1991, month=9, avg_monthly=12.09846153846154)
+Row(year=1991, month=8, avg_monthly=17.084863523573198)

@@ -1,0 +1,4 @@
+Row(year=2002, month=7, avg_monthly=17.570381231671554)
+Row(year=2002, month=6, avg_monthly=15.782777777777778)
+Row(year=2002, month=5, avg_monthly=11.743817204301076)
+Row(year=2002, month=4, avg_monthly=6.1075757575757565)

@@ -1,0 +1,4 @@
+Row(year=1982, month=6, avg_monthly=14.019393939393938)
+Row(year=1982, month=5, avg_monthly=10.706304985337242)
+Row(year=1982, month=4, avg_monthly=5.311060606060606)
+Row(year=1982, month=3, avg_monthly=2.0727272727272728)

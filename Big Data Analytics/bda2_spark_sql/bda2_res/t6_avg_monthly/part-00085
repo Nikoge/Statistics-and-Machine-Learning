@@ -1,0 +1,4 @@
+Row(year=1987, month=4, avg_monthly=5.011515151515152)
+Row(year=1987, month=3, avg_monthly=-4.277565982404693)
+Row(year=1987, month=2, avg_monthly=-3.5187707641196018)
+Row(year=1987, month=1, avg_monthly=-10.98997005988024)

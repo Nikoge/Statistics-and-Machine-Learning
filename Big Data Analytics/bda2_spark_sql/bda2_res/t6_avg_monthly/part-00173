@@ -1,0 +1,4 @@
+Row(year=1958, month=9, avg_monthly=12.729333333333335)
+Row(year=1958, month=8, avg_monthly=14.838709677419354)
+Row(year=1958, month=7, avg_monthly=16.295483870967743)
+Row(year=1958, month=6, avg_monthly=13.881)

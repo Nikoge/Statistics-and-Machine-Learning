@@ -1,0 +1,4 @@
+Row(year=2008, month=2, avg_monthly=2.148746081504702)
+Row(year=2008, month=1, avg_monthly=1.6152492668621699)
+Row(year=2007, month=12, avg_monthly=1.599706744868035)
+Row(year=2007, month=11, avg_monthly=1.2575757575757573)

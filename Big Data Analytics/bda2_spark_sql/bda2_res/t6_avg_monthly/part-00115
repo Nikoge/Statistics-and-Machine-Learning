@@ -1,0 +1,4 @@
+Row(year=1977, month=7, avg_monthly=15.134491315136474)
+Row(year=1977, month=6, avg_monthly=15.822435897435897)
+Row(year=1977, month=5, avg_monthly=10.592928039702233)
+Row(year=1977, month=4, avg_monthly=3.119871794871795)

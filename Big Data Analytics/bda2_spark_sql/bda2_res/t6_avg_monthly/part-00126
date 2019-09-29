@@ -1,0 +1,4 @@
+Row(year=1973, month=12, avg_monthly=-1.8835253456221195)
+Row(year=1973, month=11, avg_monthly=-0.4111904761904761)
+Row(year=1973, month=10, avg_monthly=4.60541474654378)
+Row(year=1973, month=9, avg_monthly=11.024047619047618)

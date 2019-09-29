@@ -1,0 +1,4 @@
+Row(year=1978, month=3, avg_monthly=-0.6085607940446651)
+Row(year=1978, month=2, avg_monthly=-5.633241758241758)
+Row(year=1978, month=1, avg_monthly=-1.088833746898263)
+Row(year=1977, month=12, avg_monthly=0.06841397849462362)

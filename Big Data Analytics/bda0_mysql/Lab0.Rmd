@@ -1,0 +1,286 @@
+---
+title: "lab1"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(RMySQL)
+
+mydb = dbConnect(MySQL(), user='andst745', password='andst745c880', dbname='andst745', host='mariadb.edu.liu.se')
+
+```
+
+# LAB1 
+## Part 1
+### 1.1
+*List all employees, i.e. all tuples in the jbemployee r elation.*
+
+```{r}
+query = "select * 
+from jbemployee;"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+
+
+###1.2
+*List the name of all departments in alphabetical order. Note: by name we mean the name attribute for all tuples in the jbdept relation.*
+
+```{r}
+query = "select name 
+from jbdept 
+order by name;"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.3
+
+*What parts are not in store, i.e. qoh = 0? (qoh = Quantity On Hand)*
+
+```{r}
+query = "select * 
+from jbparts 
+where qoh=0;"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+
+### 1.4 
+
+*Which employees have a salary between 9000 (included) and 10000 (included)? *
+
+```{r}
+query = "select * 
+from jbemployee 
+where salary>=9000 and salary<=10000;"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.5
+
+*What was the age of each employee when they started working (startyear)? *
+
+```{r}
+query = "select id, name, startyear-birthyear start_age 
+from jbemployee;"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.6
+
+*Which employees have a last name ending with ???son????*
+
+```{r}
+query = "select * 
+from jbemployee 
+where name like \"%son,%\";"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.7
+
+*Which items (note items, not parts) have been delivered by a supplier called Fisher-Price? Formulate this query using a subquery in the where-clause.*
+
+```{r}
+query = "select * 
+from jbitem 
+where supplier=
+(select id from jbsupplier where name=\"Fisher-Price\");"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.8
+
+*Formulate the same query as above, but without a subquery*
+
+```{r}
+query = "select t1.*, t2.name supplier_name 
+from jbitem t1 join jbsupplier t2 
+  on t1.supplier=t2.id 
+where t2.name=\"Fisher-Price\";"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.9  
+
+*Show all cities that have suppliers located in them. Formulate this query using a subquery in the where-clause.*
+
+```{r}
+query = "select * 
+from jbcity 
+where id in (select city from jbsupplier);"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.10
+
+*What is the name and color of the parts that are heavier than a card reader? Formulate this query using a subquery in the where-clause. (The SQL query must not contain the weight as a constant.)*
+
+```{r}
+query = "select name, color 
+from jbparts where weight>
+  (select weight from jbparts where name=\"card reader\");"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.11
+
+*Formulate the same query as above, but without a subquery. (The query must not contain the weight as a constant.)*
+
+```{r}
+query = "select t1.name, t1.color 
+from jbparts t1 join jbparts t2 
+where t2.name=\"card reader\" and t1.weight>t2.weight"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.12
+
+*What is the average weight of black parts?*
+
+```{r}
+query = "select avg(weight) avg_weight 
+from jbparts 
+where color=\"black\";"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.13
+
+*What is the total weight of all parts that each supplier in Massachusetts (???Mass???) has delivered? Retrieve the name and the total weight for each of these suppliers. Do not forget to take the quantity of delivered parts into account. Note that one row should be returned for each supplier.*
+
+```{r}
+query = "select t1.supplier, t3.name, sum(t1.quan*t2.weight) total_weight 
+from jbsupply t1 
+  join jbparts t2 on t1.part=t2.id 
+  join jbsupplier t3 on t1.supplier=t3.id 
+where t1.supplier in 
+  (select id 
+  from jbsupplier 
+  where city in 
+    (select id 
+    from jbcity 
+    where state=\"Mass\")) 
+group by supplier;"
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs, n=-1)
+print(data)
+```
+
+### 1.14
+
+*Create a new relation (a table), with the same attributes as the table items using the CREATE TABLE syntax where you define every attribute explicitly (i.e. not as a copy of another table). Then fill the table with all items that cost less than the average price for items. Remember to define primary and foreign keys in your table!*
+
+```{r}
+query = "drop table if exists jbcheapitem"
+rs = dbSendQuery(mydb, query)
+
+query = paste("CREATE TABLE jbcheapitem (",
+    "id INT,",
+    "name VARCHAR(20),",
+    "dept INT NOT NULL,",
+    "price INT,",
+    "qoh INT UNSIGNED,",
+    "supplier INT NOT NULL,",
+    "CONSTRAINT pk_item PRIMARY KEY(id));")
+rs = dbSendQuery(mydb, query)
+
+query = "ALTER TABLE jbcheapitem 
+ADD CONSTRAINT fk_cheapitem_dept 
+FOREIGN KEY (dept) 
+REFERENCES jbdept(id);"
+
+rs = dbSendQuery(mydb, query)
+
+query = "ALTER TABLE jbcheapitem 
+ADD CONSTRAINT fk_cheapitem_supplier 
+FOREIGN KEY (supplier) 
+REFERENCES jbsupplier(id);"
+
+rs = dbSendQuery(mydb, query)
+
+query = "insert into jbcheapitem 
+(select * 
+from jbitem 
+where price< 
+  (select avg(price) 
+  from jbitem));"
+
+rs = dbSendQuery(mydb, query)
+
+```
+
+```{r}
+query = "show tables"
+
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs,-1)
+
+print(data)
+```
+
+```{r}
+query = "select * from jbcheapitem"
+
+rs = dbSendQuery(mydb, query)
+
+data = fetch(rs,-1)
+
+print(data)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

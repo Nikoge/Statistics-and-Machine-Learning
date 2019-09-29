@@ -1,0 +1,4 @@
+Row(year=1953, month=10, avg_monthly=9.274838709677422)
+Row(year=1953, month=9, avg_monthly=11.607)
+Row(year=1953, month=8, avg_monthly=15.704193548387098)
+Row(year=1953, month=7, avg_monthly=17.21127819548872)

@@ -1,0 +1,4 @@
+Row(year=1980, month=6, avg_monthly=16.03)
+Row(year=1980, month=5, avg_monthly=9.428445747800588)
+Row(year=1980, month=4, avg_monthly=5.167727272727273)
+Row(year=1980, month=3, avg_monthly=-3.0051075268817207)

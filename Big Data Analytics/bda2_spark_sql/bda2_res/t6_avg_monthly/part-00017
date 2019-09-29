@@ -1,0 +1,4 @@
+Row(year=2009, month=5, avg_monthly=10.494955489614243)
+Row(year=2009, month=4, avg_monthly=7.234545454545454)
+Row(year=2009, month=3, avg_monthly=0.1131964809384164)
+Row(year=2009, month=2, avg_monthly=-3.2928571428571423)

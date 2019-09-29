@@ -1,0 +1,4 @@
+Row(year=1998, month=5, avg_monthly=10.308436724565757)
+Row(year=1998, month=4, avg_monthly=3.4196153846153847)
+Row(year=1998, month=3, avg_monthly=-0.1220843672456575)
+Row(year=1998, month=2, avg_monthly=2.042857142857143)

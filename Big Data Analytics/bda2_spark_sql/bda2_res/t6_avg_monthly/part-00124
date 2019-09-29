@@ -1,0 +1,4 @@
+Row(year=1974, month=8, avg_monthly=16.14020737327189)
+Row(year=1974, month=7, avg_monthly=15.760599078341013)
+Row(year=1974, month=6, avg_monthly=14.831785714285715)
+Row(year=1974, month=5, avg_monthly=10.100921658986175)

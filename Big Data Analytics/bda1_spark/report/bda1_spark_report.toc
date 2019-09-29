@@ -1,0 +1,12 @@
+\contentsline {section}{Task 1}{1}{section*.2}
+\contentsline {subsection}{Data import}{1}{section*.3}
+\contentsline {subsection}{Task 1: Maximum and Minimum Temperature for each Year}{1}{section*.4}
+\contentsline {subsection}{Task 1.a: Maximum and Minimum Temperatures For each Year Included Station Numbers}{3}{section*.5}
+\contentsline {subsection}{Task 1.b}{4}{section*.6}
+\contentsline {subsubsection}{Non-Parallel Script}{5}{section*.7}
+\contentsline {subsubsection}{Parallel Script}{5}{section*.8}
+\contentsline {section}{Task 2}{6}{section*.9}
+\contentsline {section}{Task 3}{8}{section*.10}
+\contentsline {section}{Task 4}{9}{section*.11}
+\contentsline {section}{Task 5}{11}{section*.12}
+\contentsline {section}{Task 6}{12}{section*.13}

@@ -1,0 +1,6 @@
+Row(year=1973, max_temp=32.2)
+Row(year=1955, max_temp=32.2)
+Row(year=1953, max_temp=32.2)
+Row(year=2007, max_temp=32.2)
+Row(year=2008, max_temp=32.2)
+Row(year=2003, max_temp=32.2)

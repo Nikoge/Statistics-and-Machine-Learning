@@ -1,0 +1,4 @@
+Row(year=1981, month=10, avg_monthly=6.587096774193548)
+Row(year=1981, month=9, avg_monthly=12.478939393939397)
+Row(year=1981, month=8, avg_monthly=15.473753665689147)
+Row(year=1981, month=7, avg_monthly=16.777903225806455)

@@ -1,0 +1,4 @@
+Row(year=2014, month=4, avg_monthly=6.544666666666667)
+Row(year=2014, month=3, avg_monthly=3.8316129032258064)
+Row(year=2014, month=2, avg_monthly=1.5955357142857143)
+Row(year=2014, month=1, avg_monthly=-2.2908064516129034)

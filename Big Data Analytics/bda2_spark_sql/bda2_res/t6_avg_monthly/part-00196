@@ -1,0 +1,4 @@
+Row(year=1951, month=3, avg_monthly=-3.738709677419355)
+Row(year=1951, month=2, avg_monthly=-1.2182142857142857)
+Row(year=1951, month=1, avg_monthly=-3.027096774193548)
+Row(year=1950, month=12, avg_monthly=-2.032258064516129)

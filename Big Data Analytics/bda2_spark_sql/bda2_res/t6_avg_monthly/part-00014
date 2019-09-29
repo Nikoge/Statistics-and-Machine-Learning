@@ -1,0 +1,4 @@
+Row(year=2010, month=5, avg_monthly=9.650672043010752)
+Row(year=2010, month=4, avg_monthly=5.229444444444445)
+Row(year=2010, month=3, avg_monthly=-1.0781337047353763)
+Row(year=2010, month=2, avg_monthly=-5.947818791946309)

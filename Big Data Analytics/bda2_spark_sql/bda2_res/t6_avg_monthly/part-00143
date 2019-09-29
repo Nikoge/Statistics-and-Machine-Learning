@@ -1,0 +1,4 @@
+Row(year=1968, month=6, avg_monthly=17.768888888888892)
+Row(year=1968, month=5, avg_monthly=9.001344086021506)
+Row(year=1968, month=4, avg_monthly=7.245555555555557)
+Row(year=1968, month=3, avg_monthly=1.751747311827957)

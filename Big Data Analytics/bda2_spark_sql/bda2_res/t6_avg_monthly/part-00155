@@ -1,0 +1,4 @@
+Row(year=1964, month=7, avg_monthly=16.52594086021505)
+Row(year=1964, month=6, avg_monthly=15.395416666666668)
+Row(year=1964, month=5, avg_monthly=12.720564516129032)
+Row(year=1964, month=4, avg_monthly=6.526388888888888)

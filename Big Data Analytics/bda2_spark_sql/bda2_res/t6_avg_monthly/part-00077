@@ -1,0 +1,4 @@
+Row(year=1989, month=11, avg_monthly=2.1885)
+Row(year=1989, month=10, avg_monthly=8.010645161290324)
+Row(year=1989, month=9, avg_monthly=12.803166666666666)
+Row(year=1989, month=8, avg_monthly=15.46435483870968)
