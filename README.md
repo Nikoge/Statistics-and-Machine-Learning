@@ -2,7 +2,7 @@
 
 #### All the laboratory work I did for the master studies in Statistics and Machine Learning can be found In this repository.
 
-* ## Introduction to Machine Learning.
+* ## [Machine Learning](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Machine%20Learning)
  
     The course introduces main principles and methods of machine learning in R which are necessary for analysis of large or complex         data. It presents machine learning mainly from a probabilistic framework, but successful non-probabilistic methods are also             covered. 
     
@@ -17,7 +17,7 @@
      
      * Splines and additive models. High-dimensional problems
  
- * ## Advanced R programming
+ * ## [Advanced R programming](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20R%20Programming)
  
     The course covers  is devoted to studying the programming language R, including its standard and more advanced tools. 
     
@@ -30,7 +30,7 @@
       
       * Performance enhancement, parallel programming and many other advanced concepts.
  
-* ## Introduction to Python
+* ## [Introduction to Python](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Introduction%20to%20Python)
 
     The course covers Python basics and more advanced concepts such as:
     
@@ -42,7 +42,7 @@
      
      * Standard library and debbuging. 
     
-* ## Neural Networks and Learning systems.
+* ## [Neural Networks and Learning systems](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Neural%20Networks%20and%20Learing%20Systems)
 
     The course aims to explain the differences between particular learning paradigms, selecting an appropriate method for solving a given problem and implement the method. The laboratory work has been done in Matlab.
 
@@ -54,7 +54,7 @@
       
      * Reinforcement Learning: TD-learning, Q-learningIn
      
-* ## Advanced Data mining 
+* ## [Advanced Data mining](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Data%20Mining)
     
     This course all labs are done with Weka v3.6.12 and reports focus comparison of algorithms and choosing parameter. Additionally,       Apriori, FP-grow algorithms; K-Means, K-medoids, PAM clustering, CLARA, CLARANS, BIRCH algorithms are studied and run step by step.
 
@@ -68,7 +68,7 @@
       
      * Association Analysis: Apriori algorithm; FP-grow Algorithm; Monotone/Antimonotone Constraints
      
-* ## Computational Statistics
+* ## [Computational Statistics](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Computational%20Statistics)
   
     The course includes computational applications of statistics in R and covers as main topics:
     
@@ -84,7 +84,7 @@
       
      * EM algorithm and stochastic optimization (specifically genetic algorithms).
       
- * ## Big Data Analytics
+ * ## [Big Data Analytics](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Big%20Data%20Analytics)
     
     The programming language of this course is Python and database technologies are Spark and SparkSQL. The structure of the big data       which is used in labs can be found index of the repository.This course covers the  following topics:
     
@@ -97,7 +97,7 @@
     * Parallelizing computations for Big Data. MapReduce concept.
     * Machine Learning for Big Data
 
-* ## Bayesian Learning
+* ## [Bayesian Learning](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Bayesian%20Learning)
 
     The course aims to give a solid introduction to the Bayesian approach to statistical inference in R, with a view towards               applications in machine learning. 
 
@@ -111,7 +111,7 @@
      
      * Model Inference and Variable Selection
 
-* ## Advanced Machine Learning
+* ## [Advanced Machine Learning](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Machine%20Learning)
   
   The course covers advanced topics in machine learning, primarily from Bayesian perspective in R.The course includes laboratory works   in which students get a practical experience of data analysis. 
   A major part of the course is devoted to  Graphical models, such as
