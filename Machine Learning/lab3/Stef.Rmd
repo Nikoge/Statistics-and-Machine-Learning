@@ -1,0 +1,518 @@
+---
+title: "Lab 3"
+author: "Stefano Toffol (steto820)"
+date: "14 December 2018"
+documentclass: book
+classoption: openany
+output: 
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 4
+    number_sections: false
+header-includes:
+    - \usepackage{caption}
+    - \usepackage{float}
+    - \floatplacement{figure}{H}
+---
+
+```{r setup & libraries, include=FALSE}
+
+knitr::opts_chunk$set(echo = F, message = F, error = F, warning = F,
+                      fig.align='center', out.width="70%")
+
+# Load libraries
+library(readxl)
+library(kableExtra)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(viridis)
+library(dplyr)
+library(geosphere)
+library(kernlab)
+
+```
+
+\newpage
+
+## Assignment 1 
+
+$~$
+
+```{r A1-data}
+
+# ------------------------------------------------------------------------------
+# A1 - Q1
+# ------------------------------------------------------------------------------
+
+# Read data
+stations <- read.csv("dataset/stations.csv", fileEncoding="ISO-8859-1")
+temps <- read.csv("dataset/temps50k.csv")
+temps$date <- as.Date(temps$date, format = "%Y-%m-%d")
+combined <- merge(stations, temps, by="station_number")
+
+```
+
+```{r A1-text-analysis}
+
+# --- FOR ANALYSIS (not important)
+
+date_analysis1 <- as.Date("2018-12-18")
+date_analysis2 <- as.Date("2017-12-16")
+diff_years_analysis <- 
+  as.numeric(difftime(date_analysis1, date_analysis2, units = "days"))
+days_analysis1 <- difftime(date_analysis1, 
+                           paste(format(date_analysis1, "%Y"), "-01-01", sep = ""), 
+                           units = "days")
+days_analysis2 <- difftime(date_analysis2, 
+                           paste(format(date_analysis2, "%Y"), "-01-01", sep = ""), 
+                           units = "days")
+diff_years_analysis <- 
+  abs(as.numeric(difftime(date_analysis1, date_analysis2, units = "days")))
+diff_days_analysis <- 
+  abs(as.numeric(days_analysis1 - days_analysis2))
+
+```
+
+
+Before diving into the analysis, it's important to clarify how the data related to time were treated. In particular the second kernel required to `account for the distance between the day a temperature measurement was made and the day of interest`. In order to achieve this result there were two possible paths: the first one considers the date as a whole (year-month-day) and, in computing the distances, would take into account the actual time between the dates; the second approach takes only the month and the day of each measurment and consider only those when the distances are computed.  
+
+This second logic takes into account that the air temperature heavily depends on the seasons and it tends to be similar even in different years, given that the measurment were close to each other in respect of the time of the year. In other words, between the dates `r date_analysis1` and `r date_analysis2` the first method will lead to a time difference of `r diff_years_analysis` days while the other will only count `r diff_days_analysis` days between the two dates. For this reason this second approach appeared to be the most reasonable choice, however also the second way can be considered but it will likely bring to very different conclusions since much less observations will have a weight considerably different from zero.  
+
+Due to the long computation times required by the algorithm, it was not possible to test on time for the deadline both ways. Nonetheless the following code contains the necessary functions to do so. In fact the function `years_dist` apply the first described path while `days_dist` the second one (the choosen approach). The code was structured so that substituting the latter with the former in the following lines will lead to the desired results.  
+In order to compute the distances and the gaussian kernels, the following functions where used: 
+
+$~$
+
+```{r A1-functions, echo = T}
+
+# --- FUNCTIONS
+
+# Compute the gaussian kernel of a certain point
+norm_kern <- function(x, data, sigma, FUN) {
+  
+  return( exp(-FUN(x, data)^2 / (2*sigma^2)) )
+  
+}
+
+
+# Compute distance on Earth's surface between given point and matrix with long/lat
+# The original distance is computed in meters; here is scaled in kilometers
+geo_dist <- function(x, data)  {
+  
+  apply(data, 1, function(point) distHaversine(point, x)/1000 )
+
+}
+  
+
+# Compute distance in days, considering the year (first approach)
+years_dist <- function(x, data) {
+  
+  sapply(data, function(point) abs(difftime(point, x)) )
+  
+}
+
+
+# Compute the distance in days without considering the year (first approach)
+days_dist <- function(x, data) {
+  
+  # Days of new point from the beginning of the year
+  x_beginning <- difftime(x, 
+                          paste(format(x, "%Y"), "-01-01", sep = ""), 
+                          units = "days")
+  # Other possibility: bring every date to the same year (2000)
+  # x_beginning <- as.Date(sub("\\d{4}", 2000, as.character(x)))
+  
+  # Days of data from the beginning of the year (vector)
+  data_beginning <- difftime(data, 
+                             paste(format(data, "%Y"), "-01-01", sep = ""), 
+                             units = "days")
+  # Other possibility: bring every date to the same year (2000)
+  # data_beginning <- as.Date(sub("\\d{4}", 2000, as.character(data)))
+  
+  # Difference in days between new point and data (vector)
+  diff_beginning <- abs(data_beginning-x_beginning)
+  
+  # Return pairwise minumum between the two vectors of differences
+  # The second argument, 365-diff_beginning, was necessary in order to consider
+  # the real distances between dates in the beginning/end of the year.
+  # In fact without it dates such as "XXXX-01-01" and "XXXX-12-31" will be
+  # considered 364 days from each other, while it should be only 1.
+  return(as.numeric(pmin(diff_beginning, 365-diff_beginning)))
+  
+}
+
+
+# Compute the difference in hours between two points (NOTE: x in a vector)
+hours_dist <- function(x, data) {
+  
+  n <- length(data)
+  p <- length(x)
+  # Transform time objects in hours from midnight
+  x <- as.difftime(as.character(x), units = "hours")
+  data <- as.difftime(as.character(data), units = "hours")
+  results <- matrix(NA, n, p)
+  
+  for(i in 1:p) {
+    # For each time consider the distances from all data points
+    temp <- sapply(data, function(time) as.numeric(abs(time - x[i])) )
+    # Consider the fact that time is continuous
+    results[,i] <- pmin(temp, 24-temp)
+  }
+  
+  return(results)
+  
+}
+
+
+# Predict the values from the kernels (passed in a list, where the order is the
+# same of the one described in the assignment), combining them with the 
+# appropriate function (either sum or product) and using the observed air temperature.
+predict_kernel <- function(kernels, data, FUN = "sum") {
+  
+  if(FUN=="sum")
+    kernels <- apply(kernels[[3]], 2, function(x) kernels[[1]] + kernels[[2]] + x)
+  else
+    kernels <- apply(kernels[[3]], 2, function(x) kernels[[1]] * kernels[[2]] * x)
+  
+  # Following slide 8 of lecture 3a:
+  numerator <- colSums(apply(kernels, 2, function(x) x * data))
+  denominator <- colSums(kernels)
+    
+  return( numerator/denominator )
+  
+}
+
+```
+
+Another arbitrary choice to achieve the desired prediciton was the selection of a adeguate smoothing parameters $h$. An [analytical solution](https://core.ac.uk/download/pdf/61800501.pdf) exists for normal kernels on normally distributed data, and it can be generalized to non-gaussian distributions with a recursive algorithm. However, not having the sufficient knowledge to efficiently implement the proposed solution, the choice of the smoothing parameter was mainly driven by common sense.  
+
+It is reasonable to assume that observations close in time and space to the target will be the key factor to correctly guess, with this method, the correct temperature, or at least a value close to it. The definition of proximity change based on someone's sensibility. It was opted to give reasonable weight to observations within a radius from $50$ to $350$ km from our target, within $1$ week and $1$ month distance and with a difference in time of minimum $2$ and maximum $8$ hours. But which values exactly to pick?  
+
+In order to at least try to give an answer to the question, a grid search has been carried picking three $h$ values for each variable and considering all the possible $27$ combinations of them. For each feature, the maximum and the minimum of the previously described "reasonable" range was taken, together with an extra value in the middle. The procedure has been carried out for both combinations of kernels (sum and product).   
+Considering a canonical split in train and test data with, for instance, $75 \%$ of the observations in one side and $25\%$ on the other was not possible: the computations required for just one observation and one combination of the $h$ parameters took approximately 20 seconds. It was therefore decided to limit the testing to just $20$ recent observations chosen at random accross the country. It's clear how this decision is the result of a compromise with the given resources and does not corresponds to the ideal solution, since our "test" dataset is extrimely limited and, therefore, likely subject to bias. This is, however, the only empirical way to actually test different but almost equally reasonable values of $h$.
+
+The code to achieve it is the following:
+
+$~$
+
+```{r A1-grid-search, eval = F, echo = T}
+
+# --- GRID SEARCH
+# DO NOT RUN: requires 20 minutes approx
+
+# Tested smooth parameters
+tested_smooth <- rbind(Space = c(50, 200, 350),
+                       Days = c(7, 14, 28),
+                       Hours = c(4, 6, 8))
+# Matrix with indexes to check all possible combinations
+combinations <- expand.grid(1:3, 1:3, 1:3)
+
+# Take 20 random observations of reacent years, of various lat/lon and hours
+# "Combined" is the df resulting from the merging of 'stations.csv' and 'temps50k.csv'
+combined$index <- 1:nrow(combined)
+recent_dates <- filter(combined, date > as.Date("2005-01-01"))
+n_test <- 20
+set.seed(1157)
+test_indexes <- sample(1:nrow(recent_dates), n_test)
+test <- recent_dates[test_indexes,]
+train <- combined[-recent_dates$index[test_indexes],]
+# Here we will store the MSE for each choice of h
+mse_sum <- c()
+mse_prod <- c()
+
+apply(combinations, 1, function(ind) {
+  
+  # NOTE: all objects with "temp" refer to the current iteration / row of the matrix
+  # Extract the indexes of the h parameter
+  temp_ind <- unlist(ind)
+  h_temp_geo <- tested_smooth[ 1,temp_ind[1] ]
+  h_temp_day <- tested_smooth[ 2,temp_ind[2] ]
+  h_temp_hour <- tested_smooth[ 3,temp_ind[3] ]
+  temp_error_sum <- 0
+  temp_error_prod <- 0
+  
+  # For each observation in the "test" dataset, compute the kernel and the
+  # resulting prediction using all the data prior to the selected date, then
+  # compute the MSE using the actually observed data.
+  for(i in 1:n_test) {
+    
+    # Take only data prior to target date
+    temp_data <- filter(train, date < test$date[i])
+    temp_spatial <- temp_data[,c(5,4)]
+    temp_coords <- c(test$longitude[i], test$latitude[i])
+    
+    # Run kernels
+    spatial_k <- norm_kern(temp_coords, temp_spatial, h_temp_geo, geo_dist)
+    day_k <- norm_kern(test$date[i], temp_data$date, h_temp_day, days_dist)
+    hour_k <- norm_kern(test$time[i], temp_data$time, h_temp_hour, hours_dist)
+    
+    # Predict
+    temp_k <- list(spatial_k, day_k, hour_k)
+    temp_pred_sum <- predict_kernel(temp_k, temp_data$air_temperature)
+    temp_pred_prod <- predict_kernel(temp_k, temp_data$air_temperature, "prod")
+    # Sum of square errors
+    temp_error_sum <- temp_error_sum + (temp_pred_sum-test$air_temperature[i])^2
+    temp_error_prod <- temp_error_prod + (temp_pred_prod-test$air_temperature[i])^2
+    
+  }
+  
+  # Compute the actual MSE
+  mse_sum <<- c(mse_sum, temp_error_sum/n_test)
+  mse_prod <<- c(mse_prod, temp_error_prod/n_test)
+  
+})
+
+# Save the results
+save(tested_smooth, mse_sum, mse_prod, file = "grid_search.RData")
+
+```
+
+```{r A1-load-results}
+
+load("grid_search.RData")
+
+values_h <- matrix(NA, 27, 3)
+combinations <- expand.grid(1:3, 1:3, 1:3)
+
+```
+
+
+For the **sum of the kernels**, the algorithm achieved quite poor results, resulting in a _MSE_ ranging from $50$ to $67.5$ approximately, as shown in Figure \@ref(fig:A1-plot-hsum). It's evident how the smoothing parameter related to the distance (faceting of the plot) does not influence substantially the score, while the other two dimensions heavily modify the outcome of the predictions. In particular the _MSE_ is inversely proportional to the smoothing parameter of the days (X axis), while the opposite is true for the smoothing parameter of the hours (colour). The optimal combination of the parameters came out to be $\left( 200, 28, 4\right)$, meaning that the predictions should be done on a long period of time but considering only hours close to our target. The exact _MSE_ found is `r mse_sum[8]`.  
+For the **product of the kernels** (Figure \@ref(fig:A1-plot-hprod)) the relationship between the smoothing parameter and the error measure is exactly the same, and even the proportions between the various points in the plot appear to be the same as the sum of the kernels. However the error rate is definitely better, since this time the _MSE_ goes from approximately $18$ up to $25$. The combinations of ideal $h$ parameter is once more the same and the exact _MSE_ found is `r mse_prod[8]`.  
+It's important to remember that the degree of confidence regarding this conclusions is extremely limited, due to the various reasons mentioned above and due to the fact that we are limiting our reaserch to a very strict range of all the possible values of $h$.
+
+$~$
+
+```{r A1-plot-hsum, fig.cap="Results of the grid search for the sum of the kernels. The plot is faceted by the smoothing parameter of the geographical distance"}
+
+for(i in 1:27) {
+  
+  ind <- unlist(combinations[i,])
+  values_h[i,] <- c(tested_smooth[ 1,ind[1] ],
+                    tested_smooth[ 2,ind[2] ],
+                    tested_smooth[ 3,ind[3] ])
+  
+}
+
+grid_df <- data.frame(MSE = mse_sum, values_h)
+colnames(grid_df) <- c("MSE", "Space", "Days", "Hours")
+grid_df$Hours <- as.factor(grid_df$Hours)
+
+ggplot(aes(x = Days, y = MSE, col = Hours), data = grid_df) +
+  geom_point() +
+  facet_grid(. ~ Space) +
+  scale_x_continuous(breaks = unique(grid_df$Days), limits = c(5, 30)) +
+  theme_light()
+
+```
+
+```{r A1-plot-hprod, fig.cap="Results of the grid search for the product of the kernels. The plot is faceted by the smoothing parameter of the geographical distance"}
+
+grid_df <- data.frame(MSE = mse_prod, values_h)
+colnames(grid_df) <- c("MSE", "Space", "Days", "Hours")
+grid_df$Hours <- as.factor(grid_df$Hours)
+
+ggplot(aes(x = Days, y = MSE, col = Hours), data = grid_df) +
+  geom_point() +
+  facet_grid(. ~ Space) +
+  scale_x_continuous(breaks = unique(grid_df$Days), limits = c(5, 30)) +
+  theme_light()
+
+```
+
+The point to predict to accomplish the task was choosen to be the weather station of Skövde, a small town in the hinterland of south Sweden (approx 100 km west from Linköping). The date chosen was the 16th of April 2014. This decision was made due to the following reasons:
+
+* The geographical position of the town, relatively distant from the coast and the national borders, will give to a fairly consistent amount of data points decent weights in terms of geographical distance.
+
+* The station is already present in tha dataset and the selected date corresponds to an actual observation (+1.5 degrees at 6 am), useful to have a at least small measure of accuracy in our final prediction.
+
+The exact data can be found below:
+
+$~$
+
+```{r A1-target-point, echo=T}
+
+# --- TARGET POINT FOR PREDICTION
+
+target_lat <- 58.3949 # The point to predict (up to the students)
+target_long <- 13.8436
+target_date <- as.Date("2014-03-16") # The date to predict (up to the students)
+target_times <- sprintf("%02d:00:00", seq(4, 24, 2))
+
+# Filter data (only prior dates)
+st <- filter(combined, date < target_date)
+
+```
+
+\newpage
+
+Finally the predictions for both the sum and the product of the kernels where computed using the code below:
+
+$~$
+
+```{r A1-kernels, echo=T}
+
+# --- KERNELS
+
+# Smoothing parameters for predictions (sum and product)
+h_distance <- 250
+h_date <- 28
+h_time <- 4
+
+# Spacial kernel
+# Take only longitude and latitude
+spatial_data <- st[,c(5,4)]
+# Kernels computations (with the functions defined above)
+coords <- c(target_long, target_lat)
+spatial_kern <- norm_kern(coords, spatial_data, h_distance, geo_dist)
+
+# Years kernel (considering the days from the beginning of the year)
+day_kern <- norm_kern(target_date, st$date, h_date, days_dist)
+
+# Hour kernel
+hour_kern <- norm_kern(target_times, st$time, h_time, hours_dist)
+
+
+# --- PREDICTIONS
+
+# Predictions considering the days
+input_kernels_days <- list(spatial_kern, day_kern, hour_kern)
+pred_sum_days <- predict_kernel(input_kernels_days, st$air_temperature)
+pred_prod_days <- predict_kernel(input_kernels_days, st$air_temperature, "prod")
+
+```
+
+The resulting predictions, for both the sum (red) and the product (blue) of the kernels, are displayed in \@ref(fig:A1-plot-pred). They both follow a gaussian-like trend, starting with low temperatures and increasing during the day, reaching their peaks at approximately 14:00 to then go down to almost the same value as 4am.  
+The shapes of the curves however differ substantially, since in the sum of the kernels the temperature almost remain the same during the day while for the product in ranges over more than 2 degrees. The former overestimate the actual temperature of 2.5 degrees approximately, while the latter underestimate it of 1.5. It is really hard however to determine which one of the kernels is actually closer to reality and more data would be necessary to discover the reasons behind this differences.  
+However we can hypotize that the way the kernels were combined in the sum allows to weight more equally close observations in at least one dimension, while with the product the opposite is true. In fact for instance a measurment done in Linköping (close in terms of distance) but during a different time of the year (summer instead of spring) will have a consistent weight for the geographical distance and a very low one, probably close to zero, for the time distance. For this reason when combining them with a sum, the final weight of the observations will still be consistent, while the product will lead to a final value closer to zero and, therefore, will give consistent weight only to observations close to our taget in all the considered dimensions.
+
+\newpage
+
+```{r A1-plot-pred, fig.cap="Predictions of the air temperature using the sum (red line) and the product (blue line) of the kernels."}
+
+df_plot <- data.frame(Time = seq(4, 24, by = 2), 
+                      Sum = pred_sum_days, 
+                      Product = pred_prod_days)
+
+ggplot(aes(x = Time), data = df_plot) +
+  geom_line(aes(y = Sum, col = "Sum"), size = 1) +
+  geom_line(aes(y = Product, col = "Product"), size = 1) +
+  scale_colour_manual(values = c("steelblue", "firebrick1"), name = "Kernel type: ") +
+  scale_x_continuous(breaks = seq(4, 24, by = 4)) +
+  geom_point(aes(x = 6, y = 1.5), col = "black", shape = 4, size = 4) +
+  theme_light()
+
+```
+
+$~$
+
+## Assignment 2  
+
+To accomplish the first part of the assignment, it was decided to split the data in train/validation/set (holdout method) using the following code: 
+
+```{r A2-data, echo=T}
+
+data(spam)
+n <- nrow(spam)
+data <- spam
+
+# Split data in train/validation/test in 50/25/25
+set.seed(12345) 
+id=sample(1:n, floor(n*0.5)) 
+train=data[id,] 
+id1=setdiff(1:n, id)
+
+set.seed(12345) 
+id2=sample(id1, floor(n*0.25)) 
+valid=data[id2,]
+id3=setdiff(id1,id2)
+test=data[id3,] 
+
+```
+
+After training and validating the various models, their misclassification rates have been computet and reported in Table \@ref(tab:A2-training). It is evident how the model with $C = 1$ is actually the best among the model trained, having the lowest misclassification rate in the validation and the smallest difference between the two datasets.
+
+```{r A2-training}
+
+# C parameter
+C = c(0.5, 1, 5)
+
+models <- list()
+misclass_train <- rep(NA, 2)
+misclass_valid <- rep(NA, 2)
+
+for(i in 1:length(C)) {
+  
+  # Fit the model usign a specific C parameter
+  temp_fit <- ksvm(type ~ ., data = train, kernel = "rbfdot", 
+                   kpar = list(sigma = 0.05), C = C[i])
+  models[[paste("SVM_",i, sep = "")]] <- temp_fit
+  
+  # Predict for both train and validation
+  pred_train <- predict(temp_fit, train)
+  pred_valid <- predict(temp_fit, valid) 
+  
+  # Compute the misclassification rates
+  misclass_train[i] <- mean(train$type != pred_train)
+  misclass_valid[i] <- mean(valid$type != pred_valid)
+  
+}
+
+df_table <- data.frame(C = C,
+                       Train = format(misclass_train, digits = 5),
+                       Validation = format(misclass_valid, digits = 5))
+rownames(df_table) <- NULL
+
+kable(df_table, "latex", booktabs = T, align = "c", digits = c(NA, 6, 6), 
+      caption = "Misclassification Rates for the train and validation
+      datasets according to the different values of C ") %>%
+  column_spec(1, border_right = T) %>% 
+  kable_styling(latex_options = "hold_position")
+
+```
+
+```{r A2-best}
+
+best_fit = models$SVM_2
+best_pred = predict(best_fit, newdata = test)
+misrate_best = mean(best_pred != test$type)
+
+```
+
+Using the data left out for the testing of our model, it's then computed the misclassification rate of the optimal model, which results in `r round(misrate_best, 6)`, meaning that 9 out of 10 observations were correctly classified.  
+The performances of the model are summarized in Table \@ref(tab:A2-misclass-table)
+
+```{r A2-misclass-table}
+
+# Confusion matrix test
+temp <- table(test$type, best_pred)
+kable(data.frame(
+      c("Non-spam", "Spam", "Frequencies"), c(temp[1:2], sum(temp[1:2])), 
+      c(temp[3:4], sum(temp[3:4])), c(sum(temp[c(1,3)]), sum(temp[c(2,4)]), 1370)),
+    col.names = c("Real values", "Non-spam", "Spam", "Frequencies"),
+    "latex", booktabs = T, align = "c", 
+    caption = "Confusion matrix of the test dataset  (C = 1).") %>%
+  add_header_above(c(" " = 1, "Predicted values" = 2, " " = 1)) %>% 
+  column_spec(c(1,3), border_right = T) %>%
+  row_spec(2, hline_after = T) %>% 
+  kable_styling(latex_options = "hold_position", font_size = 8)
+
+```
+
+The best _SVM_ found is summarized in the following:
+
+```{r echo=T, message=T}
+
+print(best_fit)
+
+```
+
+The $C$ parameter defines the cost of wrongly classify an observation and is used when we drop the assumption of linear separability in the feature space, canonical hypothesis for the regular _SVM_. The parameter penalize the misclassified values, in other words the data standing inside one margin in the feature space. It allows the algorithm to avoid overfitting: in fact if no penalization is given to those observations the linear classifier of the model will closely follow the misclassified observations, subjected to random noise. Penalizing them instead, the linear classifier will be less influenced by them and almost insensible to border line observations.
+
+\newpage
+
+## Appendix 
+
+```{r, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+```

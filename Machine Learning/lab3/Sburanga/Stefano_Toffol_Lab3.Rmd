@@ -1,0 +1,238 @@
+---
+title: "Lab 3"
+author: "Stefano Toffol (steto820)"
+date: "14 December 2018"
+documentclass: book
+classoption: openany
+output: 
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 4
+    number_sections: false
+header-includes:
+    - \usepackage{caption}
+    - \usepackage{float}
+    - \floatplacement{figure}{H}
+---
+
+```{r setup & libraries, include=FALSE}
+
+knitr::opts_chunk$set(echo = F, message = F, error = F, warning = F,
+                      fig.align='center', out.width="70%")
+
+# Load libraries
+library(readxl)
+library(kableExtra)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(viridis)
+library(dplyr)
+library(geosphere)
+library(kernlab)
+
+```
+
+\newpage
+
+## Assignment 1 
+
+#### Question 1 
+
+```{r A1-data}
+
+# ------------------------------------------------------------------------------
+# A1 - Q1
+# ------------------------------------------------------------------------------
+
+# Read data
+stations <- read.csv("dataset/stations.csv", fileEncoding="ISO-8859-1")
+temps <- read.csv("dataset/temps50k.csv")
+temps$date <- as.Date(temps$date, format = "%Y-%m-%d")
+combined <- merge(stations, temps, by="station_number")
+
+```
+
+```{r A1-functions}
+
+# --- FUNCTIONS
+
+# Compute the gaussian kernel of a certain point
+norm_kern <- function(x, data, sigma_sq, FUN) {
+  
+  return( exp(-FUN(x, data)^2 / (2*sigma_sq^2)) )
+  
+}
+
+
+# Compute distance on Earth's surface between given point and matrix
+geo_dist <- function(x, data)  {
+  
+  apply(data, 1, function(point) distHaversine(point, x) )
+
+}
+  
+
+# Compute distance in days, considering the year
+years_dist <- function(x, data) {
+  
+  sapply(data, function(point) abs(difftime(point, x)) )
+  
+}
+
+
+# Compute the distance in days without considering the year
+days_dist <- function(x, data) {
+  
+  # Days of new point
+  x_beginning <- difftime(x, paste(format(x, "%Y"), "-01-01", sep = ""), units = "days")
+  
+  # Days of data
+  data_beginning <-   
+    difftime(data, paste(format(data, "%Y"), "-01-01", sep = ""), units = "days")
+  
+  # Difference in days between new point and data
+  diff_beginning <- abs(data_beginning-x_beginning)
+  
+  # Return pairwise minumum between the two vectors of difference
+  return(as.numeric(pmin(diff_beginning, 365-diff_beginning)))
+  
+}
+
+
+# Compute the difference in hours between two points
+hours_dist <- function(x, data) {
+  
+  n <- length(data)
+  p <- length(x)
+  # Transform time objects in hours from midnight
+  x <- as.difftime(as.character(x), units = "hours")
+  data <- as.difftime(as.character(data), units = "hours")
+  results <- matrix(NA, n, p)
+  
+  for(i in 1:p) {
+    # For each time consider the distances from all data points
+    temp <- sapply(data, function(time) as.numeric(abs(time - x[i])) )
+    # Consider the fact that time is continuous
+    results[,i] <- pmin(temp, 24-temp)
+  }
+  
+  return(results)
+  
+}
+
+
+# Predict the values from the kernels (passed in a list, where the kernel referred
+# to the hours is the last one) combining them with the appropriate function 
+# (either sum or product) and using the observed air temperature.
+predict_kernel <- function(kernels, data, FUN = "sum") {
+  
+  if(FUN=="sum")
+    kernels <- apply(kernels[[3]], 2, function(x) kernels[[1]] + kernels[[2]] + x)
+  else
+    kernels <- apply(kernels[[3]], 2, function(x) kernels[[1]] * kernels[[2]] * x)
+  
+  # Following slide 8 of lecture 3a:
+  numerator <- colSums(apply(kernels, 2, function(x) x * data))
+  denominator <- colSums(kernels)
+    
+  return( numerator/denominator )
+  
+}
+
+```
+
+If the data were normally distributed, one could find the optimal smoothing estimator
+
+```{r}
+
+dens_lat <- density(st$latitude)
+plot(dens_lat$x, dens_lat$y, type = "l")
+dens_long <- density(st$longitude)
+plot(dens_long$x, dens_long$y, type = "l")
+dens_hour <- density(as.numeric(as.difftime(as.character(st$time)), units = "hours"))
+plot(dens_hour$x, dens_hour$y, type = "l")
+
+```
+
+
+```{r A1-target-point}
+
+# --- TARGET POINT FOR PREDICTION
+
+# Smoothing parameters for predictions
+h_distance <- 1
+h_date <- 1
+h_time <- 1
+h_opt <- (4/(3*nrow(st)))^(1/6)
+
+# Target point
+target_lat <- 58.4274 # The point to predict (up to the students)
+target_long <- 14.826
+target_date <- as.Date("2013-10-04") # The date to predict (up to the students)
+target_times <- sprintf("%02d:00:00", seq(4, 24, 2))
+
+# Filter data
+st <- filter(combined, date < target_date)
+
+```
+
+```{r A1-kernels}
+
+# --- KERNELS
+
+# Spacial kernel
+# Take only longitude and latitude
+spatial_data <- st[,c(5,4)]
+# Kernels computations (with the functions defined above)
+coords <- c(target_long, target_lat)
+spatial_kern <- norm_kern(coords, spatial_data, h_distance, geo_dist)
+
+# Years kernel (considering the whole date)
+year_kern <- norm_kern(target_date, st$date, h_date, years_dist)
+# Years kernel (considering the days from the beginning of the year)
+day_kern <- norm_kern(target_date, st$date, h_date, days_dist)
+
+# Hour kernel
+hour_kern <- norm_kern(target_times, st$time, h_time, hours_dist)
+
+```
+
+```{r A1-kernel-combination}
+
+# --- PREDICTIONS
+
+# Predictions considering the year
+input_kernels_year <- list(spatial_kern, year_kern, hour_kern)
+pred_sum_year <- predict_kernel(input_kernels_year, st$air_temperature)
+pred_prod_year <- predict_kernel(input_kernels_year, st$air_temperature, "prod")
+
+# Predictions considering the days
+input_kernels_days <- list(spatial_kern, day_kern, hour_kern)
+pred_sum_days <- predict_kernel(input_kernels_days, st$air_temperature)
+pred_prod_days <- predict_kernel(input_kernels_days, st$air_temperature, "prod")
+
+```
+
+```{r}
+
+```
+
+
+
+## Assignment 2  
+
+#### Question 1 
+
+```{r A2Q1-label}
+
+# ------------------------------------------------------------------------------
+# A2 - Q1
+# ------------------------------------------------------------------------------
+
+```
+
+## Appendix 
+
+```{r, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+```

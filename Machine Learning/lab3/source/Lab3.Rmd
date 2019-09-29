@@ -1,0 +1,365 @@
+---
+title: "Lab3_block1"
+author: "Andreas Stasinakis"
+date: "December 13, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 4.5, fig.height = 3, 
+                      fig.align = "center",
+                      warning = F, error = F, message = F)
+```
+
+# Assignment 1
+## Task 1
+
+```{r}
+library(ggplot2)
+library(geosphere)
+
+#function calculate the distance between two dates
+dates_dif = function(d1,d2){
+  y = 2000
+  d1 = sub("\\d{4}",y,as.character(d1))
+  d2 = sub("\\d{4}",y,as.character(d2))
+  dif_date = abs(as.numeric(difftime(d1,d2)))
+  
+  return(min(dif_date, 365 - dif_date ))
+  
+}
+
+# function calculates the gaussian kernel
+gaussian_kernel= function(h,dist){
+  
+  var = 2*h^2
+  dist = dist^2
+  
+  kernel = exp(-dist/var)
+}
+
+
+#function calculates distances for each observation for time
+time = function(time1,time2){
+  times = as.difftime(c(as.character(time1),
+                        as.character(time2)), units = "hours")
+  dis = abs(times[1]-times[2])
+  time = min(dis, 24-dis)
+  return(as.numeric(time))
+}
+
+# function predict for the sum of the kernels
+forecast = function(data, h_vector , my_day, method ){
+  
+  # eliminate the posterior observations
+  ind = which(as.Date(data$date) < as.Date(date)) 
+  data = data[ind, ]
+  
+  # all the user's input
+  b = my_day[[1]][2]
+  a = my_day[[1]][1]
+  time1 = my_day[[2]]
+  date = my_day[[3]]
+  
+  
+  # calculate the distances for position,date,time
+  #position distance
+  
+  pos_dis = (sapply(1:nrow(data),
+          function(i) distHaversine(p1 = c(b,a),
+                          p2 = c(data$longitude[i],data$latitude[i]))))/1000
+  
+  # Calculate the distances between the date for each observation and the selected date
+  dates_dis = sapply(1:nrow(data),
+                     function(i) dates_dif(date,data$date[i]))
+  
+  #calculate the distances for each time interval
+  time_dis = sapply(1:nrow(data), 
+                    function(i) time(time1 = time1, time2 = data$time[i]))
+  
+  # Create the 3 Gaussian Kernels 
+  # first kernel distances of station
+  kernel_dis = gaussian_kernel(h_vector[1],pos_dis)
+  
+  # second kernel for date
+  kernel_dates = gaussian_kernel(h_vector[2],dates_dis)
+  
+  
+  # 3rd kernel for time
+  kernel_time = gaussian_kernel(h_vector[3],time_dis)
+  
+  #choose for sum or prod of kernels
+  if(method == "sum")
+    final_kernel =  kernel_dis +kernel_dates  +kernel_time
+  
+  else if(method == "prod")
+    final_kernel =  kernel_dis * kernel_dates * kernel_time
+  else
+    stop("Choose between sum and prod")
+    
+  pred = sum(final_kernel*data$air_temperature)/sum(final_kernel)
+  return(pred)
+}
+
+# import the data and merge them in one data frame
+set.seed(1234567890)
+stations <- read.csv("../dataset/stations.csv")
+temps <- read.csv("../dataset/temps50k.csv")
+st <- merge(stations,temps,by="station_number")
+
+h_vector = c(0.3,40,3)
+h_distance <- .25 # These three values are up to the students
+h_date <- 30
+h_time <- 3
+
+a <- 58.4274 # The point to predict (up to the students)
+b <- 14.826
+date <- "2013-11-04" # The date to predict (up to the students)
+
+times <- c("04:00:00","06:00:00" ,"08:00:00","10:00:00","12:00:00",
+           "14:00:00","16:00:00","18:00:00","20:00:00","22:00:00","24:00:00")
+
+# predictions for the sum of the 3 kernel
+
+temp_sum <- vector(length=length(times))
+temp_prod <- vector(length=length(times))
+
+for (i in 1:length(times)) {
+  
+  #message for the specific time
+  #print(paste("prediction for ",times[i], "o clock"))
+  
+  #input for the prediction
+  my_day = list(coords = c(a,b), time = times[i], date = date)
+  
+  # prediction for the input
+  temp_sum[i] = forecast(data = st,h_vector = h_vector,
+                         my_day = my_day,method = "sum")
+  temp_prod[i] = forecast(data = st,h_vector = h_vector,
+                          my_day = my_day,method = "prod")
+  
+}
+
+#df for ploting the temperatures
+df_kernel = data.frame(hours = times, sum_kernel = temp_sum, 
+                       prod_kernel = temp_prod)
+
+#plot for predictions both for sum and product
+ggplot(df_kernel) +
+  geom_line(aes(x = 2:12*2 , y = df_kernel$sum_kernel),
+            color = "red",size = 1)+
+  geom_point(aes(x = 2:12*2 , y = df_kernel$sum_kernel), color = "red")+
+  geom_line(aes(x = 2:12*2, y = df_kernel$prod_kernel),
+            color = "black",size = 1) +
+  geom_point(aes(x = 2:12*2, y = df_kernel$prod_kernel), color = "black") +
+  labs(title = "Predictions with kernel sum(red) and product(black) vs Hour",
+       x = "Time", y = "Temperature") + 
+  theme_bw()
+  
+```
+
+```{r}
+
+############################################################################
+# Code to choose optimal h's
+#  choose one random observation
+# eliminate the posterior observations
+
+data = st
+n = dim(data)[1]
+set.seed(12345)
+id = sample(1:n, 20)
+test = data[id,]
+data = data[-id,]
+
+
+# choose all the h we test
+#take all the combinations between them
+h_distance = c(0.1,0.2,0.3,0.5) 
+h_date = c(20,30,40,50,100)
+h_time = c(3,4,5,8)
+combin = expand.grid(list(h_distance,h_date,h_time))
+mse_combin = combin
+mse_combin$error = 0
+combin$predictions = rep(x = 0, nrow(combin))
+
+
+for (k in 1:nrow(test)){
+
+  obs = test[k,]  
+  ind = which(as.Date(data$date) < as.Date(obs$date)) 
+  data2 = data[ind, ]
+  a = obs$latitude
+  b = obs$longitude
+  date = obs$date
+  time1 = obs$time
+  combin$real = rep(x= obs$air_temperature)
+  
+  # calculate the distances
+  #Calculate the distances between the date for each observation and the selected date
+  pos_dis = (sapply(1:nrow(data2),
+                    function(i) distHaversine(p1 = c(b,a),
+                      p2 = c(data2$longitude[i],data2$latitude[i]))))/1000
+    
+  # Calculate the distances between the date for each observation and the selected date
+  dates_dis = sapply(1:nrow(data2), function(i) dates_dif(date,data2$date[i]))
+    
+  #calculate the distances for each time interval
+  time_dis = sapply(1:nrow(data2), function(i) time(time1 = time1,
+                                                    time2 = data2$time[i]))
+  
+  
+  # for loop to calculate the predictions for each combination
+  for (i in 1:nrow(combin)) {
+    h_vector = as.numeric(combin[i,])
+      
+    # first kernel for position distances
+    kernel_dis = gaussian_kernel(h_vector[1],pos_dis)
+      
+    # second kernel for date
+    kernel_dates = gaussian_kernel(h_vector[2],dates_dis)
+      
+      
+    # 3rd kernel for time
+    kernel_time = gaussian_kernel(h_vector[3],time_dis)
+    
+    
+    # sum of the kernels
+    final_kernel =  kernel_dis + kernel_dates  +kernel_time
+    
+    
+    #predictions of the kernel
+    combin$predictions[i] = sum(final_kernel*data2$air_temperature)/sum(final_kernel)
+  }
+    
+    # calculate the  error for all the test data
+    mse_combin$error = mse_combin$error + (combin$real - combin$predictions)^2  
+}
+
+
+# calculate the mse 
+mse_combin$error = mse_combin$error/nrow(test)
+
+head(mse_combin[order(mse_combin$error),],10)
+
+
+```
+
+# Analysis 
+
+In this task we implement a kernal method in order to predict the hourly temperatures for a data and plane in Sweden. We use 3 different kernels and we combine them with 2 ways. Firstly we take the sum of them and after that the product. The most important thing in this procedure is the selection of the smoothing coefficient or width( $h$) for every different kernel. 
+A sensible choice of smoothing coefficients would be the one below : 
+i)    $h_{distance} = 0.3$
+ii)   $h_{dates} = 40$
+iii)  $h_{time} = 3$
+
+Those choices mean that we weight more the observations which are less than 300 kilometers away from the place of interest, less than 40 days after or before of the input's day and less than 3 hours difference from the hour interval selected.
+In general we should use cross validation, from 5 to 10 folds, in order to choose the optimal coefficients. In this case though, we have 50000 observations so it would be really difficult to do it. In order to choose the optimal $h$ we use *grid search* for a test dataset of 20 observations. We choose some different values for every smoothing coefficient. In all cases we choose some small values and some high values as boundaries. More specific, for the distance between a station and our place of interest we take a vector of 4 different values ( 0.1, 0.2 , 0.3, 0.5). The logic behind this choice is that we want to give more weight only for stations which their distances with the point of interest is 100 klm, 200 klm, 300 klm  until 500klm (the distances are in meters so we divide by 1000 to convert them to kilometers. It does not make sense to pay attention in stations which their distance is more than 500. For the dates' smoothing coefficients we choose 5 different values (20,30,40,50,100). We are only interesting in observations which their date are not more than 100 days and that is the reason why our highest value of smoothing parameter is 100. We try to split the year in seasons so choosing a value more than 100 does not make that sense. For example, if we want to predict the weather for June and we choose  $h = 150$ we will take all observations until November, but  in this season the weather is totally different. Finally for the time smoothing parameter, we choose 3 different values (3,5,8). As we explain before, we are only interesting in period in a specific time period of the day, so the highest day interval is 8 hours. So we use the run a *grid search* algorithm for calculating the *MSE* for all $h$ combinations in order to choose the optimal one.   
+
+The data frame of the *grid algorithm* we can verify the hypothesis above (only the head of it is printed ).  The minimum error for the test data is for $h_distance = 0.1-0.3$, so we can choose the last one. The estimation of $h_date$ is 40 which also make sense as mentioned before. Finally $h_time$ is estimated 3. As mentioned before, this test data set was really small but we use it only to take a general idea of our choice. The output is the expected one so the $h$'s above seem to be the optimal.
+
+We also make predictions using the product of the 3 kernels. The predictions seems really inaccurate fron 4 am until 12:00. After that we can say that they have similar values,but always higher, as the sum of the kernels. It can be also said that we can not make any conclusion  about the distribution of this output or to find any pattern as in the sum which seems to be normally distributed. An explanasion for this may be the $h$'s we select as optimal. As mentioned before those $h$ was optimal for the sum of the kernels but not for the product.  Also when we calculate the product all $h$'s are correlated each other so an incorrect choice of one $h$ can effect very much the output of the kernel. The best solution would be to run a  *cross validation* or *grid search*  to find the optimal smoothing coefficients as before.
+
+## Assignment 2
+
+# Task 2.1 
+
+```{r , echo=TRUE}
+
+library("kernlab")
+
+data("spam")
+data = spam
+
+SVM_model = function(data){}
+
+# import the data
+
+n = dim(data)[1]
+set.seed(12345)
+id = sample(1:n, floor(n*0.5))
+train = data[id,]
+id1 = setdiff(1:n, id)
+set.seed(12345)
+id2 = sample(id1, floor(n*0.25))
+valid = data[id2,]
+id3 = setdiff(id1,id2)
+test = data[id3,]
+
+# fit the SVM models with different C parameters
+
+C = c(0.5,1,5)
+models = list()
+
+for ( i in C) {
+  
+  
+  # fit the SVM models using Gaussian function with width 0.05
+  models[[paste("SVM",i,sep = "_")]] = ksvm(type~., data = train, kernel = "rbfdot", kpar = list(sigma = 0.05) , C = i)  
+
+}
+
+# make predictions for the 3 models 
+predict_SVM = list()
+
+for (k in 1:3) {
+  
+  predict_SVM[[paste("SVM", k ,sep = "")]] =  predict(models[[k]], valid)  
+}
+    
+
+
+# calculate the misclassification rates for all 3 models
+
+mis_rates = list()
+
+for (i in 1:3) {
+  mis_rates[[paste("SVM",i,sep = "")]] =  length(which(predict_SVM[[i]] != valid$type)) / nrow(valid)
+  
+}
+
+# we use the misclassification rate to choose the best model
+
+mis_rates
+ 
+
+
+```
+
+## Task 2.2
+
+```{r echo=TRUE}
+
+# From now one we will use only the best model using C = 1
+
+best_model = models$SVM_1
+
+# Estimate the Generalization error for the best model for unseen data(test data)
+# predict for test data
+best_predicts = predict(best_model, newdata = test)
+
+#calculate the misclassification rate
+Gen_error = length(which(best_predicts != test$type)) / nrow(test)
+
+```
+
+## Task 2.3
+
+```{r}
+print(list('Best model selected' = best_model, 'Generalization_Error'= Gen_error ))
+
+```
+
+## Task 2.4
+### Purpose of C parameter
+
+In this task we fit the data using  3 different $SVM$ models with different $C$ parameter. In general, we should do Cross - validation in order to find the best value of this $C$ parameter. In this case though, we do not use CV but we fit the model using as $C = (0.1,1,5)$  and we conclude that the best model for these 3 values is the one using $C=1$. 
+
+$C$  parameter  controls the trade off between  a low training error and a low testing error that is the ability to generalize your classifier to unseen data. The value of parameter $C$ defines the margin we want for the support vector. More specific, a high $C$ values means small margin, as a result  the hyperplane makes more accurate predictions for the training data *but* the misclassification rate for new unseen test data will  probably be  high (overfitting). On the contrary  choosing a really small $C$ means large margin, so the classifier does not care only for the close points. That may cause a lower test misclassification error
+but the classifier will be not good in the first place. In conclusion, the value of $C$ parameter is really important for the efficiency of the $SVM$ model and there is no value which garantie the best result. The optimal $C$ value depends on the data and this is the reason why we should use Cross validation in order to choose the optimal one.
+
+
+
+
