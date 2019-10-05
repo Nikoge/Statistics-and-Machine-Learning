@@ -19,7 +19,7 @@
  
  * ## [Advanced R programming](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20R%20Programming)
  
-    The course covers  is devoted to studying the programming language R, including its standard and more advanced tools. 
+    The course is devoted to studying the programming language R, including its standard and more advanced tools. 
     
     It covers concepts such as:
       * Reading data from file and from the internet.
