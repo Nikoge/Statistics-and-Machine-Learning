@@ -56,7 +56,7 @@
      
 * ## [Advanced Data mining](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Data%20Mining)
     
-    This course all labs are done with Weka v3.6.12 and reports focus comparison of algorithms and choosing parameter. Additionally,       Apriori, FP-grow algorithms; K-Means, K-medoids, PAM clustering, CLARA, CLARANS, BIRCH algorithms are studied and run step by step.
+    All labs at this course are done with Weka v3.6.12 and reports focus on comparison of algorithms and choosing parameter. Additionally,       Apriori, FP-grow algorithms; K-Means, K-medoids, PAM clustering, CLARA, CLARANS, BIRCH algorithms are being studied and run step by step.
 
     This course covers the following content:
     
@@ -86,7 +86,7 @@
       
  * ## [Big Data Analytics](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Big%20Data%20Analytics)
     
-    The programming language of this course is Python and database technologies are Spark and SparkSQL. The structure of the big data       which is used in labs can be found index of the repository.This course covers the  following topics:
+    The programming language of this course is Python and database technologies are Spark and SparkSQL. The structure of the big data,       which is used in labs, can be found in the repository.This course covers the  following topics:
     
     * Introduction to Big Data: concept and tools.
     
@@ -129,7 +129,7 @@
 
 * ## Probability Theory
 
-  The course provides a theoretical foundation for models and methods based on the concept of probability. All the assignments are written in paper. The course comprises:
+  The course provides a theoretical foundation of models and methods based on the concept of probability. All the assignments are written in paper. The course comprises:
   
   *  Probability distributions for univariate and multivariate random variables.
  
@@ -150,7 +150,7 @@
 * ## Decision Theory
 
   The course content gives a foundamental knowledge in Bayesian Inference and Decision Theory. The assignments are written in paper. 
-  The contexts below are covered :
+  The contexts which the course covers are the following :
   
     * The subjective interpretation of probabilities.
     
