@@ -116,7 +116,7 @@
      
      * Model Inference and Variable Selection.
 
-* ## [Advanced Machine Learning](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Machine%20Learning)
+* ## [Advanced Machine Learning(Ongoing)](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Machine%20Learning)
   
   The course covers advanced topics in machine learning, primarily from Bayesian perspective in R.The course includes laboratory works   in which students get a practical experience of data analysis. 
   A major part of the course is devoted to  Graphical models, such as
@@ -127,7 +127,7 @@
    
    * Markov random fields and other methods. 
 
-* ## Probability Theory
+* ## Probability Theory(Ongoing)
 
   The course provides a theoretical foundation of models and methods based on the concept of probability. All the assignments are written in paper. The course comprises:
   
@@ -147,7 +147,7 @@
 
   * Types of convergence and convergence theorems.
 
-* ## Decision Theory
+* ## Decision Theory(Ongoing)
 
   The course content gives a foundamental knowledge in Bayesian Inference and Decision Theory. The assignments are written in paper. 
   The contexts which the course covers are the following :
