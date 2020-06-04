@@ -16,6 +16,17 @@
      * Ensemble methods and mixture models. Online Learning.
      
      * Splines and additive models. High-dimensional problems.
+     
+ * ## [Advanced Machine Learning](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Machine%20Learning)
+  
+  The course covers advanced topics in machine learning, primarily from Bayesian perspective in R.The course includes laboratory works   in which students get a practical experience of data analysis. 
+  A major part of the course is devoted to  Graphical models, such as
+  
+   * Hidden Markov Models.
+   
+   * Bayesian networks.
+   
+   * Markov random fields and other methods. 
  
  * ## [Advanced R programming](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20R%20Programming)
  
@@ -116,16 +127,7 @@
      
      * Model Inference and Variable Selection.
 
-* ## [Advanced Machine Learning](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Machine%20Learning)
-  
-  The course covers advanced topics in machine learning, primarily from Bayesian perspective in R.The course includes laboratory works   in which students get a practical experience of data analysis. 
-  A major part of the course is devoted to  Graphical models, such as
-  
-   * Hidden Markov Models.
-   
-   * Bayesian networks.
-   
-   * Markov random fields and other methods. 
+
 
 * ## Probability Theory
 
