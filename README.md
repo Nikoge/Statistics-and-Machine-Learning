@@ -19,7 +19,7 @@
      
  * ## [Advanced Machine Learning](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Advanced%20Machine%20Learning)
   
-  The course covers advanced topics in machine learning, primarily from Bayesian perspective in R.The course includes laboratory works   in which students get a practical experience of data analysis. 
+    The course covers advanced topics in machine learning, primarily from Bayesian perspective in R.The course includes laboratory     works   in which students get a practical experience of data analysis. 
   A major part of the course is devoted to  Graphical models, such as
   
    * Hidden Markov Models.
@@ -78,6 +78,18 @@
      * Clustering | Density-Based Methods: DBSCAN, OPTICS, Denclue.
       
      * Association Analysis: Apriori algorithm, FP-grow Algorithm, Monotone/Antimonotone Constraints.
+     
+* ## [Text Mining]()
+
+    The goal of this course is to introduce the main tools of the text mining trade such as:
+    
+    *Information retrieval
+    
+    *Natural language processing
+    
+    *Topel modelling
+    
+    *Information extraction
      
 * ## [Computational Statistics](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Computational%20Statistics)
   
