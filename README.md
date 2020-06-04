@@ -79,17 +79,17 @@
       
      * Association Analysis: Apriori algorithm, FP-grow Algorithm, Monotone/Antimonotone Constraints.
      
-* ## [Text Mining]()
+* ## [Text Mining](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/text_Mining)
 
     The goal of this course is to introduce the main tools of the text mining trade such as:
     
-    *Information retrieval
+    * Information retrieval
     
-    *Natural language processing
+    * Natural language processing
     
-    *Topel modelling
+    * Topel modelling
     
-    *Information extraction
+    * Information extraction
      
 * ## [Computational Statistics](https://github.com/stasinak/Statistics-and-Machine-Learning/tree/master/Computational%20Statistics)
   
